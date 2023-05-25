@@ -1,0 +1,70 @@
+const express = require("express");
+const path = require('path');
+const mysql = require("mysql");
+const dotenv = require('dotenv');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const handlebars = require('handlebars');
+const handlebarsHelpers = require('handlebars-helpers');
+const session = require('express-session');
+
+//HBS
+handlebarsHelpers({ handlebars });
+const hbs = require('hbs');
+const fs = require('fs');
+
+const header = fs.readFileSync('./views/header.hbs', 'utf8');
+const footer = fs.readFileSync('./views/footer.hbs', 'utf8');
+
+hbs.registerPartial('header', header);
+hbs.registerPartial('footer', footer);
+
+//Fin HBS
+dotenv.config({ path: './.env' });
+
+const app = express();
+
+const db = mysql.createConnection({
+    host: process.env.DATABASE_HOST,
+    user: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASSWORD,
+    database: process.env.DATABASE,
+});
+
+//Session
+app.use(
+    session({
+    secret: 'secret',
+    resave: true,
+    saveUninitialized: true,
+    })
+);
+
+
+
+// Dossier css et image
+const publicDirectory = path.join(__dirname, "./public");
+app.use(express.static(publicDirectory));
+
+app.use(express.urlencoded({ extended: false }));
+
+app.use(express.json());
+app.use(cookieParser());
+
+// Moteur de Template
+app.set('view engine', 'hbs');
+
+db.connect((error) => {
+    if (error) {
+        console.log(error);
+    } else {
+    console.log("Connexion réussie");
+    }
+});
+
+app.use("/", (require('./routes/pages')));
+app.use('/auth' , require('./routes/auth'));
+
+app.listen(3000, () => {
+    console.log("C'est Parti sur le Port 3000");
+});
