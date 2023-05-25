@@ -15,70 +15,63 @@ const db = mysql.createConnection({
 //~Jolie Regex~
 const emailRegex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
 const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.*\s).{12,}$/;
+//Register Et Regex Nickel
+exports.register = (req, res) => {
+    const { username, email, password, passwordConfirm } = req.body;
 
-exports.register = async (req, res) => {
-    const { name, email, password, passwordConfirm } = req.body;
-
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-        return res.status(422).render('index', {
-            message: 'Erreur de validation',
-            errors: errors.array()
-        });
-    }
-
-    // Valider le format de l'e-mail en utilisant une expression régulière
+    // Vérification de la validité de l'email
     if (!emailRegex.test(email)) {
-        return res.status(422).render('index', {
+        return res.render('index', {
             message: 'Format d\'e-mail invalide',
         });
     }
 
-    // Valider la force du mot de passe en utilisant une expression régulière
+    // Vérification de la force du mot de passe
     if (!passwordRegex.test(password)) {
-        return res.status(422).render('index', {
+        return res.render('index', {
             message: 'Le mot de passe doit contenir au moins 12 caractères, une lettre majuscule, une lettre minuscule, un caractère spécial et un chiffre',
         });
     }
 
-    // Valider si le mot de passe et la confirmation du mot de passe correspondent
+    // Vérification de la correspondance entre le mot de passe et sa confirmation
     if (password !== passwordConfirm) {
-        return res.status(422).render('index', {
+        return res.render('index', {
             message: 'Les mots de passe ne correspondent pas',
         });
     }
 
-    try {
-        const duplicateUser = await db.query('SELECT UserEmail FROM user WHERE UserEmail = ?', [email]);
-        if (duplicateUser.length > 0) {
-            return res.status(422).render('index', {
+    db.query('SELECT UserEmail FROM user WHERE UserEmail = ?', email, async (error, results) => {
+        if (error) {
+            console.log(error);
+            return res.render('index', {
+                message: 'Erreur lors de la vérification de l\'e-mail',
+            });
+        }
+
+        if (results.length > 0) {
+            return res.render('index', {
                 message: 'Cet e-mail est déjà utilisé',
             });
+        } else {
+            try {
+                let hashedPassword = await bcrypt.hash(password, 8);
+                db.query('INSERT INTO user SET ?', { UserName: username, UserEmail: email, UserPassword: hashedPassword }, (error, results) => {
+                    if (error) {
+                        console.log(error);
+                        return res.render('index', {
+                            message: 'Erreur lors de l\'enregistrement de l\'utilisateur',
+                        });
+                    }
+                    return res.render('index', {
+                        message: 'Utilisateur enregistré',
+                    });
+                });
+            } catch (error) {
+                console.log(error);
+                return res.render('index', {
+                    message: 'Erreur lors du hachage du mot de passe',
+                });
+            }
         }
-
-        const hashedPassword = await bcryptjs.hash(password, 8);
-
-        const newUser = {
-            UserName: name,
-            UserEmail: email,
-            Userpassword: hashedPassword,
-        };
-
-        try {
-            const result = await db.query('INSERT INTO user SET ?', newUser);
-            req.session.messages = 'Compte enregistré avec succès';
-            return res.redirect('/');
-        } catch (error) {
-            console.log(error);
-            return res.status(500).render('index', {
-                message: 'Erreur',
-            });
-        }
-    } catch (error) {
-        console.log(error);
-        return res.status(500).render('index', {
-            message: 'Erreur',
-        });
-    }
+    });
 };
