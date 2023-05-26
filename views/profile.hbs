@@ -5,10 +5,11 @@
         <div class="sidebarOption justify-content-center">
             <a href="index"><img src="/img/GroupBlkTrsp.png" class="w-50 text-center" alt=""></a>
         </div>
-        <div class="sidebarOption active">
+        <a href="/"><div class="sidebarOption">
             <span class="material-icons"> home </span>
             <h2>Home</h2>
         </div>
+        </a>
 
         <div class="sidebarOption">
             <span class="material-icons"> search </span>
@@ -35,7 +36,7 @@
             <h2>Lists</h2>
         </div>
 
-        <div class="sidebarOption">
+        <div class="sidebarOption active">
             <span class="material-icons"> perm_identity </span>
             <h2>Profile</h2>
         </div>
@@ -55,7 +56,7 @@
         </div>
 
         <!-- tweetbox starts -->
-         {{#if user}}
+        {{#if user}}
         <div class="profile-head">
             <img src="img/back.jpg" alt="">
             <div class="profile-head-info">

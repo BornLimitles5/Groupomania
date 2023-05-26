@@ -5,10 +5,10 @@
         <div class="sidebarOption justify-content-center">
             <img src="/img/GroupBlkTrsp.png" class="w-50 text-center" alt="">
         </div>
-        <div class="sidebarOption active">
+        <a href="/"><div class="sidebarOption active">
             <span class="material-icons"> home </span>
             <h2>Home</h2>
-        </div>
+        </div></a>
 
         <div class="sidebarOption">
             <span class="material-icons"> search </span>
@@ -57,30 +57,29 @@
         <!-- tweetbox starts -->
         {{#if user}}
         <div class="tweetBox">
-        <form class="com">
-        <div class="tweetbox__input">
-        <img
-            src="https://i.pinimg.com/originals/a6/58/32/a65832155622ac173337874f02b218fb.png"
-            alt=""
-        />
-        <textarea class="textcom" id="myTextarea" name="text" placeholder="What's happening {{ user.UserName }}?" oninput="updateCharacterCount()" maxlength="280"></textarea>
-        </div>
-        <div class="d-flex under">
-            <div>
-                <span class="material-icons"> image </span>
-            </div>
-            <div>
-                <span class="material-icons"> gif_box </span>
-            </div>
-            <div>
-                <span class="material-icons">mood</span>
-            </div>
-            <div>
-                <p id="charCount">280 caractères restants</p>
-            </div>
-            <button type="submit" class="tweetBox__tweetButton">Post !</button>
-        </div>
+        <form class="com" action="/auth/post?userId={{ user.idUser }}" method="POST">
+  <div class="tweetbox__input">
+    <img src="https://i.pinimg.com/originals/a6/58/32/a65832155622ac173337874f02b218fb.png" alt="" />
+    <textarea class="textcom" id="myTextarea" name="messageText" placeholder="What's happening {{ user.UserName }}?" oninput="updateCharacterCount()" maxlength="280"></textarea>
+  </div>
+  <div class="d-flex under">
+    <div>
+      <span class="material-icons"> image </span>
+    </div>
+    <div>
+      <span class="material-icons"> gif_box </span>
+    </div>
+    <div>
+      <span class="material-icons">mood</span>
+    </div>
+    <div>
+      <p id="charCount">280 caractères restants</p>
+    </div>
+    <button type="submit" class="tweetBox__tweetButton">Post !</button>
+  </div>
         </form>
+
+
         </div>
         {{/if}}
     <!-- tweetbox ends -->
@@ -269,7 +268,7 @@
         </div>
         <div class="md-form mb-4">
             <h4>
-                Log out of Twitter?
+                Log out of Groupomania?
                 <br>
                 You can always log back in at any time.
             </h4>

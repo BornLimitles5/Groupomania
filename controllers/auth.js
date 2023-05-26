@@ -6,7 +6,6 @@ const { validationResult } = require('express-validator');
 const { log } = require("console");
 const session = require('express-session');
 
-
 const db = mysql.createConnection({
     host: process.env.DATABASE_HOST,
     user: process.env.DATABASE_USER,
@@ -125,35 +124,76 @@ exports.login = async (req, res) => {
 // Verification Du Stockage en Session du tokken
 exports.isLoggedIn = async (req, res, next) => {
     if (req.session.token) {
-      try {
-        // Verify the token
-        const decoded = await promisify(jwt.verify)(req.session.token, process.env.JWT_SECRET);
-  
-        // Find the user using your custom MySQL query
-        db.query('SELECT * FROM users WHERE idUser = ?', [decoded.id], (error, result) => {
-          if (!result || result.length === 0) {
+        try {
+            // Verify the token
+            const decoded = await promisify(jwt.verify)(req.session.token, process.env.JWT_SECRET);
+
+            // Find the user using your custom MySQL query
+            db.query('SELECT * FROM users WHERE idUser = ?', [decoded.id], (error, result) => {
+                if (!result || result.length === 0) {
+                    return next();
+                }
+
+                // Set req.user to the user retrieved from the database
+                req.user = result[0];
+                return next();
+            });
+        } catch (error) {
+            console.log(error);
             return next();
-          }
-  
-          // Set req.user to the user retrieved from the database
-          req.user = result[0];
-          return next();
-        });
-      } catch (error) {
-        console.log(error);
-        return next();
-      }
+        }
     } else {
-      next();
+        next();
     }
 };
 
+// Logout via un Post de User
 exports.logout = (req, res) => {
     // Clear the session token
     req.session.token = null;
 
     // Redirect to the homepage or any desired route
-    res.redirect('/');
+    res.status(200).redirect('/');
 };
+//Meesage With Socket.io
+
+exports.postMessage = async (req, res) => {
+    try {
+      const { messageText } = req.body;
+      const userId = req.query.userId;
+  
+      if (!messageText) {
+        req.session.message = 'Please enter a message';
+        return res.redirect('/');
+      }
+  
+      if (!userId) {
+        req.session.message = 'Please provide a user ID';
+        return res.redirect('/');
+      }
+  
+      // Save the message to the database with the user's ID and current date
+      db.query(
+        'INSERT INTO messages (MessageText, MessageDate, idUser) VALUES (?, NOW(), ?)',
+        [messageText, userId],
+        (error) => {
+          if (error) {
+            console.log(error);
+            req.session.message = 'Error saving the message';
+            return res.redirect('/');
+          }
+  
+          req.session.messages = 'Message posted successfully';
+          return res.redirect('/');
+        }
+      );
+    } catch (error) {
+      console.log(error);
+      req.session.message = 'Error posting the message';
+      return res.redirect('/');
+    }
+};
+
+
 
 

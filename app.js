@@ -6,6 +6,8 @@ const jwt = require('jsonwebtoken');
 const handlebars = require('handlebars');
 const handlebarsHelpers = require('handlebars-helpers');
 const session = require('express-session');
+const http = require('http');
+const socketIO = require('socket.io');
 
 //HBS
 handlebarsHelpers({ handlebars });
@@ -22,6 +24,8 @@ hbs.registerPartial('footer', footer);
 dotenv.config({ path: './.env' });
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIO(server);
 
 const db = mysql.createConnection({
     host: process.env.DATABASE_HOST,
@@ -57,9 +61,27 @@ db.connect((error) => {
     }
 });
 
+// Socket.io connection
+io.on('connection', (socket) => {
+    console.log('A user connected');
+    
+    // Handle socket events here
+    // Example:
+    socket.on('newMessage', (message) => {
+        console.log('New message:', message);
+        // Handle the new message event
+        // Save the message to the database, emit to other users, etc.
+    });
+
+    socket.on('disconnect', () => {
+        console.log('A user disconnected');
+        // Handle user disconnection event
+    });
+});
+
 app.use("/", require('./routes/pages'));
 app.use('/auth', require('./routes/auth'));
 
-app.listen(3000, () => {
+server.listen(3000, () => {
     console.log("C'est Parti sur le Port 3000");
 });
