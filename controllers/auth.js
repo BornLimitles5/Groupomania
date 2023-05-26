@@ -84,14 +84,14 @@ exports.login = async (req, res) => {
         const { email, password } = req.body;
 
         if (!email || !password) {
-            return res.status(400).render('login', {
+            return res.status(400).render('index', {
                 message: 'Please fill in all fields',
             });
         }
 
         db.query('SELECT * FROM users WHERE UserEmail = ?', [email], async (error, results) => {
             if (!results || results.length === 0) {
-                res.status(401).render('login', {
+                res.status(401).render('index', {
                     message: 'Email or Password incorrect',
                 });
             } else {
@@ -103,14 +103,14 @@ exports.login = async (req, res) => {
                     const token = jwt.sign({ id }, process.env.JWT_SECRET, {
                         expiresIn: process.env.JWT_EXPIRES_IN,
                     });
-
+                    
                     // Store the token in the session
                     req.session.token = token;
 
                     // Redirect to the index page
                     res.status(200).redirect('/');
                 } else {
-                    res.status(401).render('login', {
+                    res.status(401).render('index', {
                         message: 'Email or Password incorrect',
                     });
                 }

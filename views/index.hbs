@@ -76,8 +76,8 @@
       <p id="charCount">280 caractères restants</p>
     </div>
     <button type="submit" class="tweetBox__tweetButton">Post !</button>
-  </div>
-        </form>
+    </div>
+    </form>
 
 
         </div>
@@ -127,16 +127,7 @@
     <!-- feed ends -->
 
     <!-- widgets starts -->
-    {{#if message}}
-    <div class="container">
-        <h4 class="alert alert-danger mt-4">{{message}}</h4>
-    </div>
-{{/if}}
-{{#if messages}}
-    <div class="container">
-        <h4 class="alert alert-success mt-4">{{messages}}</h4>
-    </div>
-{{/if}}
+    
 
     <div class="widgets">
         <div class="widgets__input">
@@ -208,16 +199,6 @@
         <div class="modal-content">
         <div class="modal-header text-center">
             <h4 class="modal-title w-100 font-weight-bold">Subscribe</h4>
-            {{#if message}}
-    <div class="container">
-        <h4 class="alert alert-danger mt-4">{{message}}</h4>
-    </div>
-{{/if}}
-{{#if messages}}
-    <div class="container">
-        <h4 class="alert alert-success mt-4">{{messages}}</h4>
-    </div>
-{{/if}}
                 <button type="button" class="close" onclick="loadHome()" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
             </button>
@@ -252,16 +233,6 @@
         <div class="modal-content">
         <div class="modal-header text-center">
             <h4 class="modal-title w-100 font-weight-bold">Logout</h4>
-            {{#if message}}
-    <div class="container">
-        <h4 class="alert alert-danger mt-4">{{message}}</h4>
-    </div>
-{{/if}}
-{{#if messages}}
-    <div class="container">
-        <h4 class="alert alert-success mt-4">{{messages}}</h4>
-    </div>
-{{/if}}
                 <button type="button" class="close" onclick="loadHome()" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
             </button>
@@ -283,7 +254,30 @@
         </div>
     </form>
     <!--Modal Logout Ends-->
+    {{!-- SnackBar --}}
+        {{#if message}}
+        <div id="snackbar">
+            <h4 class="alert alert-danger mt-4">{{message}}</h4>
+        </div>
+        <script>
+        showSnackbar("{{message}}");
+        </script>
+        {{/if}}
 
+        {{#if messages}}
+        <div class="container">
+            <div id="snackbar">
+                <h4 class="alert alert-success mt-4">{{messages}}</h4>
+            </div>
+        </div>
+        <script>
+        showSnackbar("{{messages}}");
+        </script>
+        {{/if}}
+
+    {{!-- End of SnackBar --}}
+    
+     {{!-- Push State --}}
     <script>
     // DEFAULT CONTENT
     var DOMAIN_NAME = 'http://localhost:3000';
@@ -306,6 +300,7 @@
 
 
     </script>
+    {{!-- Compteur de Character --}}
     <script>
     function updateCharacterCount() {
         let textarea = document.getElementById('myTextarea');
@@ -328,7 +323,31 @@
     document.addEventListener('DOMContentLoaded', (event) => {
         updateCharacterCount();
     });
-</script>
+    </script>
+    {{!-- SnackBar --}}
+    <script>
+  function showSnackbar(message) {
+    var snackbar = document.getElementById("snackbar");
+    snackbar.innerText = message;
+    snackbar.classList.add("show");
+    setTimeout(function () {
+      snackbar.classList.remove("show");
+    }, 3000);
+  }
+
+  // Trigger the snackbar with the message from the controller
+  var message = "{{message}}";
+  var messages = "{{messages}}";
+
+  if (message) {
+    showSnackbar(message);
+  }
+
+  if (messages) {
+    showSnackbar(messages);
+  }
+    </script>
+
 
 
 

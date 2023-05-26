@@ -6,9 +6,11 @@ const router = express.Router();
 router.get('/', isLoggedIn , (req, res) => {
   const messages = req.session.messages;
   req.session.messages = null; // Reset the message after retrieving it
+  const message = req.session.message;
+  req.session.message = null; // Reset the message after retrieving it
 
   const user = req.user;
-  res.render('index', { messages, user, SocketMessage: 'Your Socket.IO message' });
+  res.render('index', { message ,messages, user, SocketMessage: 'Your Socket.IO message' });
 });
 
 // Gg Kenzo Revoie la fonction IsLoggedIn Indice Ligne 2
@@ -22,6 +24,12 @@ router.get('/profile', isLoggedIn, (req, res) => {
   } else {
     res.redirect('/');
   }
+});
+
+
+// C'est Magique
+router.get('*', (req, res) => {
+  res.redirect('/');
 });
 
 module.exports = router;
