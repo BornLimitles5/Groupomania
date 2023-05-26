@@ -1,0 +1,336 @@
+{{> header}}
+
+    <!-- sidebar starts -->
+    <div class="sidebar">
+        <div class="sidebarOption justify-content-center">
+            <img src="/img/GroupBlkTrsp.png" class="w-50 text-center" alt="">
+        </div>
+        <div class="sidebarOption active">
+            <span class="material-icons"> home </span>
+            <h2>Home</h2>
+        </div>
+
+        <div class="sidebarOption">
+            <span class="material-icons"> search </span>
+            <h2>Explore</h2>
+        </div>
+
+        <div class="sidebarOption">
+            <span class="material-icons"> notifications_none </span>
+            <h2>Notifications</h2>
+        </div>
+
+        <div class="sidebarOption">
+            <span class="material-icons"> mail_outline </span>
+            <h2>Messages</h2>
+        </div>
+
+        <div class="sidebarOption">
+            <span class="material-icons"> bookmark_border </span>
+            <h2>Bookmarks</h2>
+        </div>
+
+        <div class="sidebarOption">
+            <span class="material-icons"> list_alt </span>
+            <h2>Lists</h2>
+        </div>
+           <a href="profile"><div class="sidebarOption">
+        
+            <span  class="material-icons"> perm_identity </span>
+            <h2>Profile</h2>
+        </div></a>
+
+        <div class="sidebarOption">
+            <span class="material-icons"> more_horiz </span>
+            <h2>More</h2>
+        </div>
+        <button class="sidebar__tweet">Tweet</button>
+    </div>
+    <!-- sidebar ends -->
+
+    <!-- feed starts -->
+        <div class="feed">
+        <div class="feed__header">
+            <h2>Home</h2>
+        </div>
+
+        <!-- tweetbox starts -->
+        {{#if user}}
+        <div class="tweetBox">
+        <form class="com">
+        <div class="tweetbox__input">
+        <img
+            src="https://i.pinimg.com/originals/a6/58/32/a65832155622ac173337874f02b218fb.png"
+            alt=""
+        />
+        <textarea class="textcom" id="myTextarea" name="text" placeholder="What's happening {{ user.UserName }}?" oninput="updateCharacterCount()" maxlength="280"></textarea>
+        </div>
+        <div class="d-flex under">
+            <div>
+                <span class="material-icons"> image </span>
+            </div>
+            <div>
+                <span class="material-icons"> gif_box </span>
+            </div>
+            <div>
+                <span class="material-icons">mood</span>
+            </div>
+            <div>
+                <p id="charCount">280 caractères restants</p>
+            </div>
+            <button type="submit" class="tweetBox__tweetButton">Post !</button>
+        </div>
+        </form>
+        </div>
+        {{/if}}
+    <!-- tweetbox ends -->
+
+
+        <!-- post starts -->
+        <!-- <div class="post">
+            <div class="post__avatar">
+            <img
+                src="https://i.pinimg.com/originals/a6/58/32/a65832155622ac173337874f02b218fb.png"
+                alt=""
+            />
+            </div>
+
+            <div class="post__body">
+            <div class="post__header">
+                <div class="post__headerText">
+                <h3>
+                    Somanath Goudar
+                    <span class="post__headerSpecial"
+                    ><span class="material-icons post__badge"> verified </span>@somanathg</span
+                    >
+                </h3>
+                </div>
+                <div class="post__headerDescription">
+                <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
+                </div>
+            </div>
+            <img
+                src="https://www.focus2move.com/wp-content/uploads/2020/01/Tesla-Roadster-2020-1024-03.jpg"
+                alt=""
+            />
+            <div class="post__footer">
+                <span class="material-icons"> repeat </span>
+                <span class="material-icons"> favorite_border </span>
+                <span class="material-icons"> publish </span>
+            </div>
+            </div>
+        </div> -->
+        
+
+        <!-- post ends -->
+
+        </div>
+    <!-- feed ends -->
+
+    <!-- widgets starts -->
+    {{#if message}}
+    <div class="container">
+        <h4 class="alert alert-danger mt-4">{{message}}</h4>
+    </div>
+{{/if}}
+{{#if messages}}
+    <div class="container">
+        <h4 class="alert alert-success mt-4">{{messages}}</h4>
+    </div>
+{{/if}}
+
+    <div class="widgets">
+        <div class="widgets__input">
+            <span class="material-icons widgets__searchIcon"> search </span>
+            <input type="text" placeholder="Search Twitter" />
+        </div>
+        <div class="widgets__widgetContainer">
+        <div class="text-center">
+        {{#if user}} 
+            <button class="btn btn-primary btn-block btn-default btn-rounded mb-4" data-toggle="modal" onclick="loadLogout()" data-target="#modalLogoutForm">Logout</button>
+        {{else}}
+            <button class="btn btn-primary btn-block btn-default btn-rounded mb-4" data-toggle="modal" onclick="loadRegister()" data-target="#modalRegisterForm">Register</button>
+        </div>
+        <div class="text-center">
+            <button class="btn btn-primary btn-block btn-default btn-rounded mb-4" data-toggle="modal" onclick="loadLogin()" data-target="#modalSubscriptionForm">Login</button>
+        </div>
+        {{/if}}
+    </div>
+    </div>
+    <!-- widgets ends -->
+
+    <!-- Modal Register -->
+    <form action="/auth/register" method="post">
+        <div class="modal" id="modalRegisterForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title w-100 font-weight-bold">Sign up</h4>
+                <button type="button" class="close" onclick="loadHome()" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body mx-3">
+                <div class="md-form mb-5">
+                    <i class="fas fa-user prefix grey-text"></i>
+                    <input type="text" name="name" required id="orangeForm-name" class="form-control validate">
+                    <label id="name" data-error="wrong" data-success="right" for="orangeForm-name">Your name</label>
+                </div>
+                <div class="md-form mb-5">
+                    <i class="fas fa-envelope prefix grey-text"></i>
+                    <input type="email" name="email"  required id="orangeForm-email" class="form-control validate">
+                    <label data-error="wrong" id="email" data-success="right" for="orangeForm-email">Your email</label>
+                </div>
+                <div class="md-form mb-4">
+                    <i class="fas fa-lock prefix grey-text"></i>
+                    <input type="password" id="orangeForm-pass" name="password" class="form-control validate">
+                    <label data-error="wrong" data-success="right" id="password" required for="orangeForm-pass">Your password</label>
+                </div>
+                <div class="md-form mb-4">
+                    <i class="fas fa-lock prefix grey-text"></i>
+                    <input type="password" id="orangeForm-pass" name="passwordConfirm" class="form-control validate">
+                    <label data-error="wrong" data-success="right" id="passwordConfirm" required for="orangeForm-pass">Confirm Your password</label>
+                </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <button type="submit" class="btn btn-deep-orange">Sign up</button>
+            </div>
+        </div>
+    </div>
+    </div>
+    </form>
+    
+
+    <!-- Modal Register ends -->
+    <!--Modal Login-->
+    <form action="/auth/login" method="post">
+        <div class="modal" id="modalSubscriptionForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header text-center">
+            <h4 class="modal-title w-100 font-weight-bold">Subscribe</h4>
+            {{#if message}}
+    <div class="container">
+        <h4 class="alert alert-danger mt-4">{{message}}</h4>
+    </div>
+{{/if}}
+{{#if messages}}
+    <div class="container">
+        <h4 class="alert alert-success mt-4">{{messages}}</h4>
+    </div>
+{{/if}}
+                <button type="button" class="close" onclick="loadHome()" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body mx-3">
+            <div class="md-form mb-5">
+            <i class="fas fa-user prefix grey-text"></i>
+            <input type="email" id="form3" name="email"  class="form-control validate">
+            <label data-error="wrong" data-success="right" for="form3" >Your Email</label>
+        </div>
+
+        <div class="md-form mb-4">
+            <i class="fas fa-envelope prefix grey-text"></i>
+            <input type="password" id="form2" name="password" class="form-control validate">
+            <label data-error="wrong" data-success="right" for="form2">Your Password</label>
+        </div>
+
+        </div>
+    <div class="modal-footer d-flex justify-content-center">
+        <button type="submit" class="btn btn-indigo">Send <i class="fas fa-paper-plane-o ml-1"></i></button>
+    </div>
+    </div>
+    </div>
+        </div>
+    </form>
+    <!--Modal Login Ends-->
+    
+    <!--Modal Logout-->
+    <form action="/auth/logout" method="post" >
+        <div class="modal" id="modalLogoutForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header text-center">
+            <h4 class="modal-title w-100 font-weight-bold">Logout</h4>
+            {{#if message}}
+    <div class="container">
+        <h4 class="alert alert-danger mt-4">{{message}}</h4>
+    </div>
+{{/if}}
+{{#if messages}}
+    <div class="container">
+        <h4 class="alert alert-success mt-4">{{messages}}</h4>
+    </div>
+{{/if}}
+                <button type="button" class="close" onclick="loadHome()" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="md-form mb-4">
+            <h4>
+                Log out of Twitter?
+                <br>
+                You can always log back in at any time.
+            </h4>
+        </div>
+        <div class="modal-footer d-flex justify-content-center">
+        <button type="submit" class=" btn-block btn-primary">Logout <i class="fas fa-paper-plane-o ml-1"></i></button>
+        <button  class="close btn-block btn-primary" onclick="loadHome()" data-dismiss="modal" >Close</button>
+        </div>
+        </div>
+    </div>
+    </div>
+        </div>
+    </form>
+    <!--Modal Logout Ends-->
+
+    <script>
+    // DEFAULT CONTENT
+    var DOMAIN_NAME = 'http://localhost:3000';
+
+    function loadHome() {
+        history.pushState({}, "", DOMAIN_NAME + "/");
+    }
+    
+    function loadRegister() {
+        history.pushState({}, "", DOMAIN_NAME + "/register");
+    }
+
+    function loadLogin() {
+        history.pushState({}, "", DOMAIN_NAME + "/login");
+    }
+
+    function loadLogout() {
+        history.pushState({}, "", DOMAIN_NAME + "/logout");
+    }
+
+
+    </script>
+    <script>
+    function updateCharacterCount() {
+        let textarea = document.getElementById('myTextarea');
+        let charCount = document.getElementById('charCount');
+        let submitButton = document.getElementsByClassName('tweetBox__tweetButton')[0];
+
+        let remainingChars = 280 - textarea.value.length;
+        charCount.textContent = remainingChars + ' caractères restants';
+
+        if (textarea.value.trim() === '') {
+            submitButton.disabled = true;
+            submitButton.style.backgroundColor = "gray"
+        } else {
+            submitButton.disabled = false;
+            submitButton.style.backgroundColor = "#0069d9"
+        }
+    }
+
+    // Disables the button initially if the textarea is empty
+    document.addEventListener('DOMContentLoaded', (event) => {
+        updateCharacterCount();
+    });
+</script>
+
+
+
+{{> footer}}
