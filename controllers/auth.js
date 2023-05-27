@@ -155,38 +155,74 @@ exports.logout = (req, res) => {
     // Redirect to the homepage or any desired route
     res.status(200).redirect('/');
 };
-//Meesage With Socket.io
 
+//Meesage Without Socket.io
 exports.postMessage = async (req, res) => {
     try {
       const { messageText } = req.body;
       const userId = req.query.userId;
-  
-      if (!messageText) {
-        req.session.message = 'Please enter a message';
-        return res.redirect('/');
-      }
+      const imageFile = req.file;
   
       if (!userId) {
         req.session.message = 'Please provide a user ID';
         return res.redirect('/');
       }
   
-      // Save the message to the database with the user's ID and current date
-      db.query(
-        'INSERT INTO messages (MessageText, MessageDate, idUser) VALUES (?, NOW(), ?)',
-        [messageText, userId],
-        (error) => {
-          if (error) {
-            console.log(error);
-            req.session.message = 'Error saving the message';
+      if (messageText && imageFile) {
+        // Both text and image message
+        // Save the message to the database with the user's ID, message text, and image filename
+        db.query(
+          'INSERT INTO messages (MessageText, MessageDate, idUser, MessageImage) VALUES (?, NOW(), ?, ?)',
+          [messageText, userId, imageFile.filename],
+          (error) => {
+            if (error) {
+              console.log(error);
+              req.session.message = 'Error saving the message';
+              return res.redirect('/');
+            }
+  
+            req.session.messages = 'Message posted successfully';
             return res.redirect('/');
           }
+        );
+      } else if (messageText) {
+        // Text message only
+        // Save the message to the database with the user's ID and message text
+        db.query(
+          'INSERT INTO messages (MessageText, MessageDate, idUser) VALUES (?, NOW(), ?)',
+          [messageText, userId],
+          (error) => {
+            if (error) {
+              console.log(error);
+              req.session.message = 'Error saving the message';
+              return res.redirect('/');
+            }
   
-          req.session.messages = 'Message posted successfully';
-          return res.redirect('/');
-        }
-      );
+            req.session.messages = 'Message posted successfully';
+            return res.redirect('/');
+          }
+        );
+      } else if (imageFile) {
+        // Image message only
+        // Save the message to the database with the user's ID and image filename
+        db.query(
+          'INSERT INTO messages (MessageDate, idUser, MessageImage) VALUES (NOW(), ?, ?)',
+          [userId, imageFile.filename],
+          (error) => {
+            if (error) {
+              console.log(error);
+              req.session.message = 'Error saving the message';
+              return res.redirect('/');
+            }
+  
+            req.session.messages = 'Message posted successfully';
+            return res.redirect('/');
+          }
+        );
+      } else {
+        req.session.message = 'Please enter a message or upload an image';
+        return res.redirect('/');
+      }
     } catch (error) {
       console.log(error);
       req.session.message = 'Error posting the message';
@@ -194,6 +230,38 @@ exports.postMessage = async (req, res) => {
     }
 };
 
+exports.fetchMessages = async (req, res, next) => {
+    try {
+      // Fetch messages from the database with user information
+      db.query(
+        'SELECT m.idMessage, m.MessageText, m.MessageDate, m.MessageImage, u.UserName, u.UserProfileImage FROM messages m JOIN users u ON m.idUser = u.idUser',
+        (error, results) => {
+          if (error) {
+            console.log(error);
+            req.session.message = 'Failed to fetch messages';
+            return res.redirect('/');
+          }
+          
+          // Store the fetched messages in the session
+          req.session.socketmessages  = results.map((message) => ({
+            SocketMessage: message.MessageText,
+            idMessage: message.idMessage,
+            MessageDate: message.MessageDate,
+            MessageImage: message.MessageImage,
+            UserName: message.UserName,
+            UserProfileImage: message.UserProfileImage,
+          })
+          )
+          console.log(req.session.socketmessages);;
+          next();
+        }
+      );
+    } catch (error) {
+      console.log(error);
+      req.session.message = 'Failed to fetch messages';
+      res.redirect('/');
+    }
+};
 
 
 

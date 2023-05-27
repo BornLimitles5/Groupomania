@@ -9,10 +9,13 @@ const session = require('express-session');
 const http = require('http');
 const socketIO = require('socket.io');
 
+
+
 //HBS
 handlebarsHelpers({ handlebars });
 const hbs = require('hbs');
 const fs = require('fs');
+const file = require("carbon-framework/lib/file");
 
 const header = fs.readFileSync('./views/header.hbs', 'utf8');
 const footer = fs.readFileSync('./views/footer.hbs', 'utf8');
@@ -26,6 +29,7 @@ dotenv.config({ path: './.env' });
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
+
 
 const db = mysql.createConnection({
     host: process.env.DATABASE_HOST,
@@ -64,14 +68,6 @@ db.connect((error) => {
 // Socket.io connection
 io.on('connection', (socket) => {
     console.log('A user connected');
-    
-    // Handle socket events here
-    // Example:
-    socket.on('newMessage', (message) => {
-        console.log('New message:', message);
-        // Handle the new message event
-        // Save the message to the database, emit to other users, etc.
-    });
 
     socket.on('disconnect', () => {
         console.log('A user disconnected');
@@ -79,8 +75,12 @@ io.on('connection', (socket) => {
     });
 });
 
+
 app.use("/", require('./routes/pages'));
 app.use('/auth', require('./routes/auth'));
+
+
+
 
 server.listen(3000, () => {
     console.log("C'est Parti sur le Port 3000");

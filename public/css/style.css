@@ -85,3 +85,25 @@ textarea {
     from {bottom: 30px; opacity: 1;}
     to {bottom: 0; opacity: 0;}
   } 
+
+/* Image Preview */
+
+  .imagePreview {
+    width: 100px;
+    height: 100px;
+    overflow: hidden;
+  }
+  
+  .imagePreview img {
+    width: 100%;
+    height: auto;
+  }
+
+/* Icone */
+.material-icons:hover{
+    cursor: pointer;
+}
+
+.addimg{
+    width: 75px;
+}
