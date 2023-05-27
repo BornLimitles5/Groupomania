@@ -234,7 +234,7 @@ exports.fetchMessages = async (req, res, next) => {
     try {
       // Fetch messages from the database with user information
       db.query(
-        'SELECT m.idMessage, m.MessageText, m.MessageDate, m.MessageImage, u.UserName, u.UserProfileImage FROM messages m JOIN users u ON m.idUser = u.idUser',
+        'SELECT m.idMessage, m.MessageText, m.MessageDate, m.MessageImage, u.UserName, u.UserProfileImage FROM messages m JOIN users u ON m.idUser = u.idUser ORDER BY m.idMessage DESC',
         (error, results) => {
           if (error) {
             console.log(error);

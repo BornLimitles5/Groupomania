@@ -91,50 +91,44 @@
 
 
         <!-- post starts -->
-        {{#each socketmessages}}
-    <div>
-      {{!-- <div class="muted">{{ this.MessageDate }}</div> --}}
-      <div>{{ this.SocketMessage }}</div>
-      <div><h4>{{ this.UserName }}</h4></div>
-      <div><img src="/uploads/{{ this.UserProfileImage }}" alt="{{ this.UserProfileImage }}"></div>
-      <div><img class="w-25" src="/uploads/{{ this.MessageImage }}" alt="{{ this.MessageImage }}"></div>
-      <!-- Display other message properties as needed -->
-    </div>
-    {{/each}}
-  </div>
-        <!-- <div class="post">
+        <div class="post">
             <div class="post__avatar">
             <img
-                src="https://i.pinimg.com/originals/a6/58/32/a65832155622ac173337874f02b218fb.png"
-                alt=""
+                src="/uploads/{{ this.UserProfileImage }}" alt="{{ this.UserProfileImage }}"
             />
             </div>
 
+            
+            </div> 
+        {{#each socketmessages}}
             <div class="post__body">
             <div class="post__header">
                 <div class="post__headerText">
                 <h3>
-                    Somanath Goudar
+                    {{ this.UserName }}
                     <span class="post__headerSpecial"
-                    ><span class="material-icons post__badge"> verified </span>@somanathg</span
+                    ><span class="material-icons post__badge"> verified </span>@{{ this.UserName }}</span
                     >
                 </h3>
                 </div>
                 <div class="post__headerDescription">
-                <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
+                <p>{{ this.SocketMessage }}</p>
                 </div>
             </div>
-            <img
-                src="https://www.focus2move.com/wp-content/uploads/2020/01/Tesla-Roadster-2020-1024-03.jpg"
-                alt=""
+            <div class="socketimg">
+                <img
+                src="/uploads/{{ this.MessageImage }}" alt="{{ this.MessageImage }}"
             />
+            </div>
             <div class="post__footer">
                 <span class="material-icons"> repeat </span>
                 <span class="material-icons"> favorite_border </span>
                 <span class="material-icons"> publish </span>
             </div>
             </div>
-        </div> -->
+    {{/each}}
+  </div>
+            
         
 
         <!-- post ends -->

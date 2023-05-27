@@ -107,3 +107,11 @@ textarea {
 .addimg{
     width: 75px;
 }
+
+.socketimg{
+  text-align: center;
+}
+
+.post__body{
+  border-top: blue solid;
+}
