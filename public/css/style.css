@@ -1,3 +1,20 @@
+@font-face {
+  font-family: 'Lato';
+  src: url('path/to/lato-regular-webfont.woff2') format('woff2'), /* Modern Browsers */
+       url('path/to/lato-regular-webfont.woff') format('woff'); /* Legacy Browsers */
+  font-weight: normal;
+  font-style: normal;
+}
+
+* {
+  font-family: 'Lato', sans-serif;
+}
+
+body {
+  font-family: "Segoe UI Emoji", "Noto Color Emoji", "Twemoji", sans-serif;
+}
+
+
 .popup {
     position: fixed;
     top: 50%;
@@ -29,7 +46,7 @@ textarea {
     box-shadow: none;
     width: 100%;
     height: 100%;
-    resize: none; /*remove the resize handle on the bottom right*/
+    resize: none !important; /*remove the resize handle on the bottom right*/
 }
 
 .under{
@@ -39,52 +56,72 @@ textarea {
     gap: 10px;
 }
 
-/*******************************SnackBar***********************/
- /* The snackbar - position it at the bottom and in the middle of the screen */
- #snackbar {
-    visibility: hidden; /* Hidden by default. Visible on click */
-    min-width: 250px; /* Set a default minimum width */
-    margin-left: -125px; /* Divide value of min-width by 2 */
-    background-color: #333; /* Black background color */
-    color: #fff; /* White text color */
-    text-align: center; /* Centered text */
-    border-radius: 2px; /* Rounded borders */
-    padding: 16px; /* Padding */
-    position: fixed; /* Sit on top of the screen */
-    z-index: 1; /* Add a z-index if needed */
-    left: 50%; /* Center the snackbar */
-    bottom: 30px; /* 30px from the bottom */
+#snackbar {
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 2px;
+  padding: 16px;
+  position: absolute; /* Change to absolute */
+  z-index: 1;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%); /* Add this to center horizontally */
+}
+
+#snackbar.show {
+  visibility: visible;
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+  from {
+    bottom: 0;
+    opacity: 0;
   }
-  
-  /* Show the snackbar when clicking on a button (class added with JavaScript) */
-  #snackbar.show {
-    visibility: visible; /* Show the snackbar */
-    /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
-    However, delay the fade out process for 2.5 seconds */
-    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  to {
+    bottom: 30px;
+    opacity: 1;
   }
-  
-  /* Animations to fade the snackbar in and out */
-  @-webkit-keyframes fadein {
-    from {bottom: 0; opacity: 0;}
-    to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+  from {
+    bottom: 0;
+    opacity: 0;
   }
-  
-  @keyframes fadein {
-    from {bottom: 0; opacity: 0;}
-    to {bottom: 30px; opacity: 1;}
+  to {
+    bottom: 30px;
+    opacity: 1;
   }
-  
-  @-webkit-keyframes fadeout {
-    from {bottom: 30px; opacity: 1;}
-    to {bottom: 0; opacity: 0;}
+}
+
+@-webkit-keyframes fadeout {
+  from {
+    bottom: 30px;
+    opacity: 1;
   }
-  
-  @keyframes fadeout {
-    from {bottom: 30px; opacity: 1;}
-    to {bottom: 0; opacity: 0;}
-  } 
+  to {
+    bottom: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes fadeout {
+  from {
+    bottom: 30px;
+    opacity: 1;
+  }
+  to {
+    bottom: 0;
+    opacity: 0;
+  }
+}
+
 
 /* Image Preview */
 
@@ -112,6 +149,29 @@ textarea {
   text-align: center;
 }
 
-.post__body{
-  border-top: blue solid;
-}
+/* Emoji */
+.emoji-picker {
+    display: inline-block;
+    font-size: 24px;
+    padding: 5px;
+    cursor: pointer;
+  }
+
+  .emoji-picker:hover {
+    background-color: #f1f1f1;
+  }
+
+  #emojiPickerModal .modal-body {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .emoji-picker {
+    font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Android Emoji", "EmojiSymbols", sans-serif;
+  }
+  .emoji-icon {
+    font-size: 24px;
+    color: red;
+  }
+  

@@ -44,12 +44,16 @@
             <span class="material-icons"> more_horiz </span>
             <h2>More</h2>
         </div>
-        <button class="sidebar__tweet">Tweet</button>
+        {{#if user}}
+
+        <button class="sidebar__tweet" data-toggle="modal" onclick="loadPushState()" data-target="#modalPost">Tweet</button>
+
+        {{/if}}
     </div>
     <!-- sidebar ends -->
 
     <!-- feed starts -->
-        <div class="feed">
+    <div class="feed">
         <div class="feed__header">
             <h2>Home</h2>
         </div>
@@ -66,7 +70,7 @@
                 <label for="imageInput">
                 <input type="file" id="imageInput" name="image" accept="image/*" onchange="previewImage(event)" style="display: none" />
                 </label>
-                <textarea class="textcom" id="myTextarea" name="messageText" placeholder="What's happening {{ user.UserName }}?" oninput="updateCharacterCount()" maxlength="280"></textarea>
+                <textarea class="textcom myTextarea" id="myTextarea"  name="messageText" placeholder="What's happening {{ user.UserName }}?" oninput="updateCharacterCount()" maxlength="280"></textarea>
             </div>
             <div class="d-flex under">
                 <div class="imagePreview">
@@ -77,6 +81,7 @@
                     <img class="material-icons addimg" src="/img/addimg.png" alt="">
                 </div>
                 </label>
+                
 
                 <div>
                 <p id="charCount">280 caractères restants</p>
@@ -84,22 +89,65 @@
                 <button type="submit" class="tweetBox__tweetButton">Post !</button>
             </div>
             </form>
+            <button class="btn btn-outline-info btn-lg"  id="emojiPickerBtn"><img src="/img/addemoji.svg" alt="Add A Emoji"></button>
+            <div id="emojiContainer"></div>
         </div>
         {{/if}}
-
-    <!-- tweetbox ends -->
-
-
-        <!-- post starts -->
-        <div class="post">
-            <div class="post__avatar">
-            <img
-                src="/uploads/{{ this.UserProfileImage }}" alt="{{ this.UserProfileImage }}"
-            />
+        <!-- tweetbox ends -->
+        <!-- Emoji Picker Modal -->
+       <div class="modal" id="emojiPickerModal" tabindex="-1" role="dialog" aria-labelledby="emojiPickerModalLabel" aria-hidden="true" data-backdrop="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Emoji Picker</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
             </div>
+            <div class="modal-body">
+                <div class="emoji-picker" id="emojiContainer">
+                <div class="emoji-picker">
+            <span class="emoji-picker" data-emoji="😀">😀</span>
+            <span class="emoji-picker" data-emoji="😃">😃</span>
+            <span class="emoji-picker" data-emoji="😄">😄</span>
+            <span class="emoji-picker" data-emoji="😁">😁</span>
+            <span class="emoji-picker" data-emoji="😆">😆</span>
+            <span class="emoji-picker" data-emoji="😅">😅</span>
+            <span class="emoji-picker" data-emoji="😂">😂</span>
+            <span class="emoji-picker" data-emoji="🤣">🤣</span>
+            <span class="emoji-picker" data-emoji="😊">😊</span>
+            <span class="emoji-picker" data-emoji="😇">😇</span>
+            <span class="emoji-picker" data-emoji="❤️">❤️</span>
+            <span class="emoji-picker" data-emoji="💔">💔</span>
+            <span class="emoji-picker" data-emoji="¯\_(ツ)_/¯">¯\_(ツ)_/¯</span>
+            <span class="emoji-picker" data-emoji="😍">😍</span>
+            <span class="emoji-picker" data-emoji="😉">😉</span>
+            <span class="emoji-picker" data-emoji="👍">👍</span>
+            <span class="emoji-picker" data-emoji="👏">👏</span>
+            <span class="emoji-picker" data-emoji="🎉">🎉</span>
+            <span class="emoji-picker" data-emoji="🔥">🔥</span>
+            <span class="emoji-picker" data-emoji="🙌">🙌</span>
+            <span class="emoji-picker" data-emoji="😎">😎</span>
+            <span class="emoji-picker" data-emoji="🤔">🤔</span>
+            <span class="emoji-picker" data-emoji="😘">😘</span>
+            <span class="emoji-picker" data-emoji="🤗">🤗</span>
+            <span class="emoji-picker" data-emoji="👌">👌</span>
+            <span class="emoji-picker" data-emoji="💻">💻</span>
+            <span class="emoji-picker" data-emoji="🕺">🕺</span>
+                    </div>
 
-            
-            </div> 
+
+                <!-- Add more emoji options here -->
+                </div>
+            </div>
+            </div>
+        </div>
+        </div>
+
+
+
+
+
         {{#each socketmessages}}
             <div class="post__body">
             <div class="post__header">
@@ -125,20 +173,15 @@
                 <span class="material-icons"> favorite_border </span>
                 <span class="material-icons"> publish </span>
             </div>
+            <div class="small text-light  bg-dark">
+                <i>{{ this.MessageDate }}</i>
             </div>
-    {{/each}}
-  </div>
-            
-        
-
-        <!-- post ends -->
-
-        </div>
+            </div>
+        {{/each}}
+    </div>
     <!-- feed ends -->
 
     <!-- widgets starts -->
-    
-
     <div class="widgets">
         <div class="widgets__input">
             <span class="material-icons widgets__searchIcon"> search </span>
@@ -199,9 +242,8 @@
     </div>
     </div>
     </form>
-    
-
     <!-- Modal Register ends -->
+
     <!--Modal Login-->
     <form action="/auth/login" method="post">
         <div class="modal" id="modalSubscriptionForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
@@ -260,34 +302,78 @@
         </div>
         </div>
     </div>
-    </div>
+        </div>
         </div>
     </form>
     <!--Modal Logout Ends-->
-    {{!-- SnackBar --}}
-        {{#if message}}
-        <div id="snackbar">
-            <h4 class="alert alert-danger mt-4">{{message}}</h4>
-        </div>
-        <script>
-        showSnackbar("{{message}}");
-        </script>
-        {{/if}}
 
-        {{#if messages}}
-        <div class="container">
-            <div id="snackbar">
-                <h4 class="alert alert-success mt-4">{{messages}}</h4>
+    <!--Modal Post -->
+    <div class="modal" id="modalPost" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+            <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header text-center border-white">
+                <button type="button" class="close" onclick="loadHome()" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="md-form mb-4">
+            <form class="com" action="/auth/post?userId={{ user.idUser }}" method="POST" enctype="multipart/form-data">
+            <div class="tweetbox__input">
+                
+                <div class="UserProfile">
+                    <img class="rounded" src="/uploads/{{user.UserProfileImage}}" alt="Profile Image" class="profileImage" />
+                </div>
+                <label for="imageInput">
+                <input type="file" id="imageInput" name="image" accept="image/*" onchange="previewImage(event)" style="display: none" />
+                </label>
+                <textarea class="textcom" id="myTextarea" name="messageText" placeholder="What's happening {{ user.UserName }}?" oninput="updateCharacterCount()" maxlength="280"></textarea>
             </div>
-        </div>
-        <script>
-        showSnackbar("{{messages}}");
-        </script>
-        {{/if}}
+            <div class="d-flex under">
+                <div class="imagePreview">
+                <img id="preview" src=""/>
+                </div>
+                <div>
+                <label for="imageInput">
+                    <img class="material-icons addimg" src="/img/addimg.png" alt="">
+                </div>
+                </label>
 
+                <div>
+                <p id="charCount">280 caractères restants</p>
+                </div>
+                <button type="submit" class="tweetBox__tweetButton">Post !</button>
+            </div>
+            </form>
+        </div>
+        </div>
+    </div>
+    </div>
+    <!--Modal Post End -->
+    
+
+    {{!-- SnackBar --}}
+    {{#if message}}
+    <div id="snackbar">
+            <h4 class="alert alert-danger mt-4">{{message}}</h4>
+    </div>
+    <script>
+        showSnackbar("{{message}}");
+    </script>
+    {{/if}}
+
+    {{#if messages}}
+    <div id="snackbar">
+                <h4 class="alert alert-success mt-4">{{messages}}</h4>
+    </div>
+    <script>
+        showSnackbar("{{messages}}");
+    </script>
+    {{/if}}
     {{!-- End of SnackBar --}}
     
-     {{!-- Push State --}}
+
+    {{!-- JavaScript --}}
+    {{!-- Push State --}}
     <script>
     // DEFAULT CONTENT
     var DOMAIN_NAME = 'http://localhost:3000';
@@ -308,6 +394,9 @@
         history.pushState({}, "", DOMAIN_NAME + "/logout");
     }
 
+    function loadPushState() {
+        history.pushState({}, "", DOMAIN_NAME + "/PushState");
+    }
 
     </script>
     {{!-- Compteur de Character --}}
@@ -414,7 +503,55 @@ export default {
   },
 };
     </script>
+    {{!-- Emoji --}}
+    <script>
+  // Get the elements
+  const emojiPickerBtn = document.getElementById('emojiPickerBtn');
+  const textarea = document.getElementsByClassName('myTextarea')[0];
+
+  // Add click event listener to the emoji picker button
+  emojiPickerBtn.addEventListener('click', () => {
+    // Open the emoji picker
+    $('#emojiPickerModal').modal('show');
+  });
+
+  // Handle emoji selection
+  const emojiOptions = document.querySelectorAll('.emoji-picker');
+  emojiOptions.forEach((option) => {
+    option.addEventListener('click', (event) => {
+      // Get the selected emoji
+      const emoji = event.target.getAttribute('data-emoji');
+
+      if (emoji) {
+        // Insert the emoji into the textarea if it doesn't already exist
+        if (!textarea.value.includes(emoji)) {
+          const currentText = textarea.value;
+          const cursorPosition = textarea.selectionStart;
+          const newText = currentText.slice(0, cursorPosition) + emoji + currentText.slice(cursorPosition);
+          textarea.value = newText;
+        }
+      }
+
+      // Close the emoji picker modal
+      $('#emojiPickerModal').modal('hide');
+    });
+  });
+    </script>
 
 
 
+
+
+
+
+
+
+    {{!-- JavaScript END --}}
+    {{!-- Bibliothéque --}}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous">
+    </script>
+    <!-- Twemoji JavaScript -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/twemoji@latest/dist/twemoji.min.js"></script>
 {{> footer}}

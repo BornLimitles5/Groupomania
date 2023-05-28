@@ -13,6 +13,7 @@ const socketIO = require('socket.io');
 
 //HBS
 handlebarsHelpers({ handlebars });
+
 const hbs = require('hbs');
 const fs = require('fs');
 const file = require("carbon-framework/lib/file");
@@ -36,6 +37,7 @@ const db = mysql.createConnection({
     user: process.env.DATABASE_USER,
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE,
+    charset: 'utf8mb4'
 });
 
 //Session

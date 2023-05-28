@@ -11,6 +11,7 @@ const db = mysql.createConnection({
     user: process.env.DATABASE_USER,
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE,
+    charset: 'utf8mb4'
 });
 
 //~Jolie Regex~
@@ -80,46 +81,50 @@ exports.register = (req, res) => {
 
 //Login et Stockage dans la session
 exports.login = async (req, res) => {
-    try {
-        const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).render('index', {
-                message: 'Please fill in all fields',
-            });
-        }
-
-        db.query('SELECT * FROM users WHERE UserEmail = ?', [email], async (error, results) => {
-            if (!results || results.length === 0) {
-                res.status(401).render('index', {
-                    message: 'Email or Password incorrect',
-                });
-            } else {
-                const isPasswordMatch = await bcryptjs.compare(password, results[0].UserPassword);
-
-                if (isPasswordMatch) {
-                    const id = results[0].idUser;
-
-                    const token = jwt.sign({ id }, process.env.JWT_SECRET, {
-                        expiresIn: process.env.JWT_EXPIRES_IN,
-                    });
-                    
-                    // Store the token in the session
-                    req.session.token = token;
-
-                    // Redirect to the index page
-                    res.status(200).redirect('/');
-                } else {
-                    res.status(401).render('index', {
-                        message: 'Email or Password incorrect',
-                    });
-                }
-            }
-        });
-    } catch (error) {
-        console.log(error);
+    if (!email || !password) {
+      return res.status(400).render('index', {
+        message: 'Please fill in all fields',
+      });
     }
+
+    db.query('SELECT * FROM users WHERE UserEmail = ?', [email], async (error, results) => {
+      if (!results || results.length === 0) {
+        res.status(401).render('index', {
+          message: 'Email or Password incorrect',
+        });
+      } else {
+        const isPasswordMatch = await bcryptjs.compare(password, results[0].UserPassword);
+
+        if (isPasswordMatch) {
+          const id = results[0].idUser;
+
+          const token = jwt.sign({ id }, process.env.JWT_SECRET, {
+            expiresIn: process.env.JWT_EXPIRES_IN,
+          });
+
+          // Store the token in the session
+          req.session.token = token;
+
+          // Store the success message in the session
+          req.session.message = 'Login successful';
+
+          // Redirect to the index page
+          res.status(200).redirect('/');
+        } else {
+          res.status(401).render('index', {
+            message: 'Email or Password incorrect',
+          });
+        }
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
+
 
 // Verification Du Stockage en Session du tokken
 exports.isLoggedIn = async (req, res, next) => {
@@ -149,12 +154,16 @@ exports.isLoggedIn = async (req, res, next) => {
 
 // Logout via un Post de User
 exports.logout = (req, res) => {
-    // Clear the session token
-    req.session.token = null;
+  // Clear the session token
+  req.session.token = null;
 
-    // Redirect to the homepage or any desired route
-    res.status(200).redirect('/');
+  // Store the success message in the session
+  req.session.message = 'Logout successful';
+
+  // Redirect to the homepage or any desired route
+  res.status(200).redirect('/');
 };
+
 
 //Meesage Without Socket.io
 exports.postMessage = async (req, res) => {
@@ -181,8 +190,8 @@ exports.postMessage = async (req, res) => {
               return res.redirect('/');
             }
   
-            req.session.messages = 'Message posted successfully';
-            return res.redirect('/');
+            req.session.message = 'Message posted successfully';
+            res.status(200).redirect('/');
           }
         );
       } else if (messageText) {
@@ -231,37 +240,61 @@ exports.postMessage = async (req, res) => {
 };
 
 exports.fetchMessages = async (req, res, next) => {
-    try {
-      // Fetch messages from the database with user information
-      db.query(
-        'SELECT m.idMessage, m.MessageText, m.MessageDate, m.MessageImage, u.UserName, u.UserProfileImage FROM messages m JOIN users u ON m.idUser = u.idUser ORDER BY m.idMessage DESC',
-        (error, results) => {
-          if (error) {
-            console.log(error);
-            req.session.message = 'Failed to fetch messages';
-            return res.redirect('/');
+  try {
+    // Fetch messages from the database with user information
+    db.query(
+      'SELECT m.idMessage, m.MessageText, m.MessageDate, m.MessageImage, u.UserName, u.UserProfileImage FROM messages m JOIN users u ON m.idUser = u.idUser ORDER BY m.idMessage DESC',
+      (error, results) => {
+        if (error) {
+          console.log(error);
+          req.session.message = 'Failed to fetch messages';
+          return res.redirect('/');
+        }
+
+        // Store the fetched messages in the session
+        const socketmessages = results.map((message) => {
+          const currentDate = new Date();
+          const messageDate = new Date(message.MessageDate);
+          const timeDifference = currentDate.getTime() - messageDate.getTime();
+          const seconds = Math.floor(timeDifference / 1000);
+          const minutes = Math.floor(seconds / 60);
+          const hours = Math.floor(minutes / 60);
+          const days = Math.floor(hours / 24);
+
+          let formattedDate = '';
+
+          if (days > 0) {
+            formattedDate = `Envoyé le ${messageDate.toLocaleDateString()}`;
+          } else if (hours > 0) {
+            formattedDate = `Envoyé il y a ${hours} heure(s)`;
+          } else if (minutes > 0) {
+            formattedDate = `Envoyé il y a ${minutes} minute(s)`;
+          } else {
+            formattedDate = `Envoyé il y a ${seconds} seconde(s)`;
           }
-          
-          // Store the fetched messages in the session
-          req.session.socketmessages  = results.map((message) => ({
+
+          return {
             SocketMessage: message.MessageText,
             idMessage: message.idMessage,
-            MessageDate: message.MessageDate,
+            MessageDate: formattedDate,
             MessageImage: message.MessageImage,
             UserName: message.UserName,
             UserProfileImage: message.UserProfileImage,
-          })
-          )
-          console.log(req.session.socketmessages);;
-          next();
-        }
-      );
-    } catch (error) {
-      console.log(error);
-      req.session.message = 'Failed to fetch messages';
-      res.redirect('/');
-    }
+          };
+        });
+
+        req.session.socketmessages = socketmessages;
+        // console.log(req.session.socketmessages);
+        next();
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    req.session.message = 'Failed to fetch messages';
+    res.redirect('/');
+  }
 };
+
 
 
 
