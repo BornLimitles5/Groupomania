@@ -127,9 +127,6 @@ figure:hover {
     cursor: pointer;
 }
 
-span {
-    filter: brightness(50%)
-}
 
 .headerprofileimage {
     margin-top: 10px;
@@ -322,31 +319,31 @@ span {
     display: flex;
     align-items: center;
     cursor: pointer;
-  }
-  
-  .sidebarOption .material-icons,
-  .fa-twitter {
+}
+
+.sidebarOption .material-icons,
+.fa-twitter {
     padding: 20px;
-  }
-  
-  .sidebarOption h2 {
+}
+
+.sidebarOption h2 {
     font-weight: 800;
     font-size: 20px;
     margin-right: 20px;
-  }
-  
-  .sidebarOption:hover {
+}
+
+.sidebarOption:hover {
     background-color: var(--twitter-background);
     border-radius: 30px;
     color: var(--twitter-color);
     transition: color 100ms ease-out;
-  }
-  
-  .sidebarOption.active {
+}
+
+.sidebarOption.active {
     color: var(--twitter-color);
-  }
-  
-  .sidebar__tweet {
+}
+
+.sidebar__tweet {
     width: 100%;
     background-color: var(--twitter-color);
     border: none;
@@ -355,6 +352,20 @@ span {
     border-radius: 30px;
     height: 50px;
     margin-top: 20px;
-  }
+}
 
+.circle {
+    border-radius: 50%;
+    height: 100px;
+    width: 100px;
+    object-fit: cover;
+    object-position: center;
+}
 
+.circle2 {
+    border-radius: 50%;
+    height: 41px;
+    width: 41px;
+    object-fit: cover;
+    object-position: center;
+}

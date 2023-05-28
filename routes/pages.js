@@ -28,6 +28,19 @@ router.get('/profile', isLoggedIn,(req, res) => {
   }
 });
 
+// Gg Kenzo Revoie la fonction IsLoggedIn Indice Ligne 2
+router.get('/edit', isLoggedIn,(req, res) => {
+  const messages = req.session.messages;
+  req.session.messages = null; // Reset the message after retrieving it
+
+  const user = req.user;
+  if (user) {
+    res.render('edit', { messages, user });
+  } else {
+    res.redirect('/');
+  }
+});
+
 
 // C'est Magique
 router.get('*', (req, res) => {

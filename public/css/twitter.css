@@ -51,7 +51,6 @@
   body {
     display: flex;
     height: 100vh;
-    max-width: 1300px;
     margin-left: auto;
     margin-right: auto;
     padding: 0 10px;
@@ -103,11 +102,7 @@
     scrollbar-width: none;
   }
   
-  /* tweet box */
-  .tweetbox__input img {
-    border-radius: 50%;
-    height: 40px;
-  }
+
   
   .tweetBox {
     padding-bottom: 10px;
@@ -159,11 +154,6 @@
     padding-bottom: 10px;
   }
   
-  .post__body img {
-    width: 250px;
-    object-fit: contain;
-    border-radius: 20px;
-  }
   
   .post__footer {
     display: flex;
@@ -191,6 +181,7 @@
   .post__headerDescription {
     margin-bottom: 10px;
     font-size: 15px;
+    max-width: 44rem;
   }
   
   .post__body {

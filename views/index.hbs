@@ -65,7 +65,7 @@
             <div class="tweetbox__input">
                 
                 <div class="UserProfile">
-                    <img class="rounded" src="/uploads/{{user.UserProfileImage}}" alt="Profile Image" class="profileImage" />
+                    <img class="circle" src="/uploads/{{user.UserProfileImage}}" alt="Profile Image" class="profileImage" />
                 </div>
                 <label for="imageInput">
                 <input type="file" id="imageInput" name="image" accept="image/*" onchange="previewImage(event)" style="display: none" />
@@ -145,19 +145,25 @@
         </div>
 
 
-
-
+    
 
         {{#each socketmessages}}
             <div class="post__body">
             <div class="post__header">
-                <div class="post__headerText">
-                <h3>
-                    {{ this.UserName }}
+                <div class="post__headerText AllPost">
+                    <div > 
+                        <img src="/uploads/{{this.UserProfileImage}}" class="circle"   alt="">
+                    </div>
+                    <div>
+                        <h3>
+                    {{ this.UserName }}  
+                    {{#if this.UserRoles}}
                     <span class="post__headerSpecial"
-                    ><span class="material-icons post__badge"> verified </span>@{{ this.UserName }}</span
+                    ><span class="material-icons post__badge"> verified </span>@Admin</span
                     >
+                    {{/if}}
                 </h3>
+                    </div>
                 </div>
                 <div class="post__headerDescription">
                 <p>{{ this.SocketMessage }}</p>
@@ -168,9 +174,15 @@
                 src="/uploads/{{ this.MessageImage }}" alt="{{ this.MessageImage }}"
             />
             </div>
+            {{#if ../user}}
             <div class="post__footer">
-                <span class="material-icons"> repeat </span>
-                <div class="con-like">
+                
+                <span class="spane" > <button  data-toggle="modal" onclick="loadComment()" data-target="#modalComment{{ this.idMessage }}" class="button btn">
+  <svg class="svg-icon" fill="none" height="22" viewBox="0 0 20 20" width="22" xmlns="http://www.w3.org/2000/svg"><g stroke="#fff" stroke-linecap="round" stroke-width="1.5"><path d="m6.66669 6.66667h6.66671"></path><path clip-rule="evenodd" d="m3.33331 5.00001c0-.92047.74619-1.66667 1.66667-1.66667h10.00002c.9205 0 1.6666.7462 1.6666 1.66667v6.66669c0 .9205-.7461 1.6666-1.6666 1.6666h-4.8274c-.1105 0-.21654.044-.29462.122l-2.50004 2.5c-.26249.2625-.71129.0766-.71129-.2945v-1.9108c0-.2301-.18655-.4167-.41667-.4167h-1.25c-.92048 0-1.66667-.7461-1.66667-1.6666z" fill-rule="evenodd"></path><path d="m6.66669 10h2.5"></path></g></svg>
+  <span class="lable"></span>
+                </button> </span>
+
+                <span><div class="con-like">
                 <input title="like" type="checkbox" class="like">
                 <div class="checkmark">
     <svg viewBox="0 0 24 24" class="outline" xmlns="http://www.w3.org/2000/svg">
@@ -188,13 +200,73 @@
       <polygon points="80,80 70,70" class="poly"></polygon>
     </svg>
                 </div>
-                </div>
+                </div></span>
                 <span class="material-icons"> publish </span>
             </div>
+            {{/if}}
             <div class="small text-light  bg-dark">
                 <i>{{ this.MessageDate }}</i>
             </div>
             </div>
+
+            <!-- Modal Commentaire -->
+    <form action="/auth/comment" method="post">
+    <input type="hidden" name="userId" value="{{ ../user.idUser }}">
+    <input type="hidden" name="messageId" value="{{ this.idMessage }}">
+    <div class="modal" id="modalComment{{ this.idMessage }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center border-white">
+        <button type="button" class="close" onclick="loadHome()" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="card">
+        <span class="title">Comments</span>
+        <div class="comments">
+          <div class="comment-react">
+          </div>
+          <div class="comment-container">
+            <div class="user">
+              <div class="user-pic circle">
+                <img src="/uploads/{{this.UserProfileImage}}" class="circle2" alt="">
+                </svg>
+              </div>
+              <div class="user-info">
+                <span>{{this.UserName}}</span>
+                <p>{{this.MessageDate}}</p>
+              </div>
+            </div>
+            <p class="comment-content">
+              {{ this.SocketMessage }}
+            </p>
+          </div>
+        </div>
+
+        <div class="text-box">
+          <div class="box-container">
+            <textarea name="commentText" placeholder="Reply"></textarea>
+            <div>
+              <div class="formatting">
+                
+                <button type="submit" class="send" title="Send">
+                  <svg fill="none" viewBox="0 0 24 24" height="18" width="18" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#ffffff" d="M12 5L12 20"></path>
+                    <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#ffffff" d="M7 9L11.2929 4.70711C11.6262 4.37377 11.7929 4.20711 12 4.20711C12.2071 4.20711 12.3738 4.37377 12.7071 4.70711L17 9"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    </div>
+    </form>
+    <!-- Modal Commentaire END-->
+
+
         {{/each}}
     </div>
     <!-- feed ends -->
@@ -368,7 +440,6 @@
     </div>
     <!--Modal Post End -->
     
-
     {{!-- SnackBar --}}
     {{#if message}}
     <div id="snackbar">
@@ -414,6 +485,10 @@
 
     function loadPushState() {
         history.pushState({}, "", DOMAIN_NAME + "/PushState");
+    }
+
+    function loadComment() {
+        history.pushState({}, "", DOMAIN_NAME + "/comment");
     }
 
     </script>
@@ -482,7 +557,7 @@
   }
     </script>
     {{!-- Socket.io --}}
-    <script>
+    <script type="module">
 export default {
   data() {
     return {

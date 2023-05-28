@@ -164,7 +164,6 @@ exports.logout = (req, res) => {
   res.status(200).redirect('/');
 };
 
-
 //Meesage Without Socket.io
 exports.postMessage = async (req, res) => {
     try {
@@ -241,9 +240,9 @@ exports.postMessage = async (req, res) => {
 
 exports.fetchMessages = async (req, res, next) => {
   try {
-    // Fetch messages from the database with user information
+    // Fetch messages from the database with user information, including User.Roles
     db.query(
-      'SELECT m.idMessage, m.MessageText, m.MessageDate, m.MessageImage, u.UserName, u.UserProfileImage FROM messages m JOIN users u ON m.idUser = u.idUser ORDER BY m.idMessage DESC',
+      'SELECT m.idMessage, m.MessageText, m.MessageDate, m.MessageImage, u.UserName, u.UserProfileImage, u.UserRoles FROM messages m JOIN users u ON m.idUser = u.idUser ORDER BY m.idMessage DESC',
       (error, results) => {
         if (error) {
           console.log(error);
@@ -280,6 +279,7 @@ exports.fetchMessages = async (req, res, next) => {
             MessageImage: message.MessageImage,
             UserName: message.UserName,
             UserProfileImage: message.UserProfileImage,
+            UserRoles: message.UserRoles,
           };
         });
 
@@ -294,6 +294,152 @@ exports.fetchMessages = async (req, res, next) => {
     res.redirect('/');
   }
 };
+
+exports.postComment = async (req, res) => {
+  try {
+    const { commentText, userId, messageId } = req.body;
+    if (!userId || !messageId) {
+      req.session.message = "Veuillez fournir un identifiant d'utilisateur et un identifiant de message";
+      return res.redirect("/");
+    }
+
+    // Save the comment to the database with the user's ID, message ID, and comment text
+    db.query(
+      "INSERT INTO commentaires (PostTexte, PostDate, idUser, idMessage) VALUES (?, NOW(), ?, ?)",
+      [commentText, userId, messageId],
+      (error) => {
+        if (error) {
+          console.log(error);
+          req.session.message = "Erreur lors de la sauvegarde du commentaire";
+          return res.redirect("/");
+        }
+
+        req.session.message = "Commentaire ajouté avec succès";
+        res.redirect("/");
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    req.session.message = "Erreur lors de l'ajout du commentaire";
+    res.redirect("/");
+  }
+};
+
+exports.fetchComments = async (req, res, next) => {
+  try {
+    // Fetch comments from the database with user information, including User.Roles
+    db.query(
+      'SELECT c.idComment, c.PostTexte, c.PostDate, u.UserName, u.UserProfileImage, u.UserRoles FROM commentaires c JOIN users u ON c.idUser = u.idUser ORDER BY c.idComment DESC',
+      (error, results) => {
+        if (error) {
+          console.log(error);
+          req.session.message = 'Failed to fetch comments';
+          return res.redirect('/');
+        }
+
+        // Store the fetched comments in the session
+        const socketComments = results.map((comment) => {
+          const currentDate = new Date();
+          const commentDate = new Date(comment.PostDate);
+          const timeDifference = currentDate.getTime() - commentDate.getTime();
+          const seconds = Math.floor(timeDifference / 1000);
+          const minutes = Math.floor(seconds / 60);
+          const hours = Math.floor(minutes / 60);
+          const days = Math.floor(hours / 24);
+
+          let formattedDate = '';
+
+          if (days > 0) {
+            formattedDate = `Posted on ${commentDate.toLocaleDateString()}`;
+          } else if (hours > 0) {
+            formattedDate = `Posted ${hours} hour(s) ago`;
+          } else if (minutes > 0) {
+            formattedDate = `Posted ${minutes} minute(s) ago`;
+          } else {
+            formattedDate = `Posted ${seconds} second(s) ago`;
+          }
+
+          return {
+            SocketComment: comment.PostTexte,
+            idComment: comment.idComment,
+            CommentDate: formattedDate,
+            UserName: comment.UserName,
+            UserProfileImage: comment.UserProfileImage,
+            UserRoles: comment.UserRoles,
+          };
+        });
+
+        req.session.socketComments = socketComments;
+        next();
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    req.session.message = 'Failed to fetch comments';
+    res.redirect('/');
+  }
+};
+
+
+
+
+//User Crud (Update Account & Delete Account)
+exports.UpdateEmail = async (req, res) => {
+  try {
+      const { email, password } = req.body;
+
+      if (!email && !password) {
+          return res.status(400).render('edit', {
+              message: 'Veuillez remplir au moins un champ',
+          });
+      }
+
+      const decoded = await promisify(jwt.verify)(req.session.token, process.env.JWT_SECRET);
+      const userId = decoded.id;
+
+      const user = await db.query('SELECT * FROM users WHERE idUser = ?', [userId]);
+
+      if (!user.length) {
+          return res.status(404).render('edit', {
+              message: 'Utilisateur introuvable',
+          });
+      }
+
+      let updateQuery = '';
+      const updateValues = [];
+
+      if (email) {
+          updateQuery += 'UserEmail = ?,';
+          updateValues.push(email);
+      }
+
+      if (password) {
+          updateQuery += 'UserPassword = ?,';
+          updateValues.push(password);
+      }
+
+      // Supprime la virgule finale de updateQuery
+      updateQuery = updateQuery.slice(0, -1);
+
+      // Ajoute userId à updateValues
+      updateValues.push(userId);
+
+      await db.query('UPDATE users SET ' + updateQuery + ' WHERE idUser = ?', updateValues);
+
+      return res.status(200).render('index', {
+          message: 'Mise à jour réussie',
+      });
+  } catch (error) {
+      console.log(error);
+      return res.status(500).render('edit', {
+          message: 'Erreur lors de la mise à jour',
+      });
+  }
+};
+
+
+
+
 
 
 

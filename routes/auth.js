@@ -42,4 +42,8 @@ router.post('/logout', authController.logout);
 
 router.post('/post', upload.single('image'), authController.postMessage); // Use the upload middleware
 
+router.post('/comment', authController.postComment);
+
+router.post('/UpdateEmail', authController.UpdateEmail);
+
 module.exports = router;
