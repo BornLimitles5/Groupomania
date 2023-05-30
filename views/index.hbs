@@ -156,7 +156,7 @@
                     </div>
                     <div>
                         <h3>
-                    {{ this.UserName }}  
+                    @{{ this.UserName }}  
                     {{#if this.UserRoles}}
                     <span class="post__headerSpecial"
                     ><span class="material-icons post__badge"> verified </span>@Admin</span
@@ -222,8 +222,12 @@
         </button>
       </div>
       <div class="card">
-        <span class="title">Comments</span>
-        <div class="comments">
+        <span class="title">
+          <button class="btn gap btn-primary ml-1 btn-sm" type="button">Comments</button>
+          <button class="btn gap btn-primary ml-3 btn-sm" type="button" >AllComments(x)</button>
+          </span>
+        <div id="ChangeBox">
+          <div class="comments">
           <div class="comment-react">
           </div>
           <div class="comment-container">
@@ -242,10 +246,9 @@
             </p>
           </div>
         </div>
-
         <div class="text-box">
           <div class="box-container">
-            <textarea name="commentText" placeholder="Reply"></textarea>
+            <textarea name="commentText" required placeholder="Reply"></textarea>
             <div>
               <div class="formatting">
                 
@@ -259,6 +262,8 @@
             </div>
           </div>
         </div>
+        </div>
+        
       </div>
     </div>
   </div>
@@ -516,7 +521,7 @@
     let imageInput = document.getElementById('imageInput');
     imageInput.addEventListener('change', updateCharacterCount);
     </script>
-
+    
     {{!-- SnackBar --}}
     <script>
   function showSnackbar(message) {
@@ -525,7 +530,7 @@
     snackbar.classList.add("show");
     setTimeout(function () {
       snackbar.classList.remove("show");
-    }, 3000);
+    }, 10000);
   }
 
   // Trigger the snackbar with the message from the controller

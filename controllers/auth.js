@@ -170,15 +170,13 @@ exports.postMessage = async (req, res) => {
       const { messageText } = req.body;
       const userId = req.query.userId;
       const imageFile = req.file;
-  
+
       if (!userId) {
-        req.session.message = 'Please provide a user ID';
+        req.session.message = 'Connectez Vous';
         return res.redirect('/');
       }
   
       if (messageText && imageFile) {
-        // Both text and image message
-        // Save the message to the database with the user's ID, message text, and image filename
         db.query(
           'INSERT INTO messages (MessageText, MessageDate, idUser, MessageImage) VALUES (?, NOW(), ?, ?)',
           [messageText, userId, imageFile.filename],
@@ -194,8 +192,6 @@ exports.postMessage = async (req, res) => {
           }
         );
       } else if (messageText) {
-        // Text message only
-        // Save the message to the database with the user's ID and message text
         db.query(
           'INSERT INTO messages (MessageText, MessageDate, idUser) VALUES (?, NOW(), ?)',
           [messageText, userId],
@@ -303,6 +299,11 @@ exports.postComment = async (req, res) => {
       return res.redirect("/");
     }
 
+    if (!commentText.trim()) {
+      req.session.message = "Veuillez entrer un commentaire";
+      return res.redirect("/");
+    }
+
     // Save the comment to the database with the user's ID, message ID, and comment text
     db.query(
       "INSERT INTO commentaires (PostTexte, PostDate, idUser, idMessage) VALUES (?, NOW(), ?, ?)",
@@ -381,61 +382,82 @@ exports.fetchComments = async (req, res, next) => {
 };
 
 
-
-
 //User Crud (Update Account & Delete Account)
 exports.UpdateEmail = async (req, res) => {
+  
   try {
-      const { email, password } = req.body;
+    const { email, password } = req.body;
 
-      if (!email && !password) {
-          return res.status(400).render('edit', {
-              message: 'Veuillez remplir au moins un champ',
-          });
-      }
+    if (!email && !password) {
+    return res.status(400).render('edit', {
+        message: 'Veuillez remplir au moins un champ',
+    });
+    }
 
-      const decoded = await promisify(jwt.verify)(req.session.token, process.env.JWT_SECRET);
-      const userId = decoded.id;
+    try {
+    const decoded = await promisify(jwt.verify)(req.session.token, process.env.JWT_SECRET);
+    console.log(decoded)
+    const userId = decoded.id;
+    console.log(userId)
 
-      const user = await db.query('SELECT * FROM users WHERE idUser = ?', [userId]);
+    db.query('SELECT * FROM users WHERE idUser = ?', [userId], async (error, result) => {
+        if (error) {
+        return res.status(500).render('edit', {
+            message: 'Erreur lors de la mise à jour',
+        });
+        } else {
+        if (!result) {
+            return res.status(404).render('edit', {
+            message: 'Utilisateur introuvable',
+            });
+        }
 
-      if (!user.length) {
-          return res.status(404).render('edit', {
-              message: 'Utilisateur introuvable',
-          });
-      }
+        let updateQuery = '';
+        const updateValues = [];
 
-      let updateQuery = '';
-      const updateValues = [];
 
-      if (email) {
-          updateQuery += 'UserEmail = ?,';
-          updateValues.push(email);
-      }
+        if (email) {
+            updateQuery += 'email = ?,';
+            updateValues.push(email);
+        }
 
-      if (password) {
-          updateQuery += 'UserPassword = ?,';
-          updateValues.push(password);
-      }
+        if (password) {
+            updateQuery += 'password = ?,';
+            updateValues.push(password);
+        }
 
-      // Supprime la virgule finale de updateQuery
-      updateQuery = updateQuery.slice(0, -1);
+        // Remove the trailing comma from updateQuery
+        updateQuery = updateQuery.slice(0, -1);
 
-      // Ajoute userId à updateValues
-      updateValues.push(userId);
+        // Add the userId to updateValues
+        updateValues.push(userId);
 
-      await db.query('UPDATE users SET ' + updateQuery + ' WHERE idUser = ?', updateValues);
-
-      return res.status(200).render('index', {
-          message: 'Mise à jour réussie',
-      });
-  } catch (error) {
-      console.log(error);
-      return res.status(500).render('edit', {
-          message: 'Erreur lors de la mise à jour',
-      });
-  }
+        // Perform the update operation in the database
+        // Replace the code below with your actual update logic
+        db.query('UPDATE users SET ' + updateQuery + ' WHERE idUser = ?', updateValues, (error, result) => {
+            if (error) {
+            return res.status(500).render('edit', {
+                message: 'Erreur lors de la mise à jour',
+            });
+            } else {
+            return res.status(200).render('edit', {
+                message: 'Mise à jour réussie',
+            });
+            }
+        });
+        }
+    });
+    } catch (error) {
+    return res.status(401).render('edit', {
+        message: 'Accès non autorisé',
+    });
+    }
+} catch (error) {
+    console.log(error);
+}
 };
+
+
 
 
 

@@ -74,7 +74,7 @@
         <hr>
         <button class="btn btn-primary btn-block btn-default btn-rounded mb-4" onclick="/auth/delete"> Destroy your fucking account</button>
 
-        <form action="/auth/UpdateEmail" method="post">
+        <form action="/auth/UpdateEmail" method="POST">
         <div class="modal" id="modalUpdateForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -105,6 +105,28 @@
     </div>
         </div>
         </form>
+
+        
+
+
+        {{#if message}}
+    <div id="snackbar">
+            <h4 class="alert alert-danger mt-4">{{message}}</h4>
+    </div>
+    <script>
+        showSnackbar("{{message}}");
+    </script>
+    {{/if}}
+
+    {{#if messages}}
+    <div id="snackbar">
+                <h4 class="alert alert-success mt-4">{{messages}}</h4>
+    </div>
+    <script>
+        showSnackbar("{{messages}}");
+    </script>
+    {{/if}}
+        
     <!-- tweetbox ends -->    
 
     <script>
@@ -126,15 +148,16 @@
     function loadName() {
         history.pushState({}, "", DOMAIN_NAME + "/name");
     }
-   
-   
+    
+    
+    
   function showSnackbar(message) {
     var snackbar = document.getElementById("snackbar");
     snackbar.innerText = message;
     snackbar.classList.add("show");
     setTimeout(function () {
       snackbar.classList.remove("show");
-    }, 3000);
+    }, 10000);
   }
 
   // Trigger the snackbar with the message from the controller
