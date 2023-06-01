@@ -59,7 +59,7 @@
         <div class="profile-head">
             <img src="img/back.jpg" alt="">
             <div class="profile-head-info">
-                <img class="avatar" src="/uploads/{{ user.UserProfileImage }}" alt="">
+                <img class="circle3" src="/uploads/{{ user.UserProfileImage }}" alt="">
                 <h4>{{ user.UserName }}</h4>
                 <a href="edit"><input class="twitter-btn" type="button" value="Edit Profil" class="sidebarOption"></a>
             </div>
@@ -71,6 +71,46 @@
 
         <hr>
     <!-- tweetbox ends -->
+
+   {{!-- Socket.io --}}
+    <script type="module">
+export default {
+  data() {
+    return {
+      socketmessages: [], // Initialize the socketmessages data property
+    };
+  },
+  mounted() {
+    // Connect to the Socket.io server
+    const socket = io();
+
+    // Listen for new messages from the server
+    socket.on('newMessage', (message) => {
+      this.displayMessage(message);
+    });
+
+    // Fetch messages from the server
+    fetch('/messages')
+      .then((response) => response.json())
+      .then((data) => {
+        this.socketmessages = data.socketmessages;
+
+        // Display the fetched messages
+        this.socketmessages.forEach((message) => {
+          this.displayMessage(message);
+        });
+      })
+      .catch((error) => {
+        console.error('Error fetching messages:', error);
+      });
+  },
+  methods: {
+    displayMessage(message) {
+      // Display the message in your component's template
+      console.log('New message:', message);
+    },
+  },
+};
 
 
 {{> footer}}

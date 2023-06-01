@@ -44,6 +44,10 @@ router.post('/post', upload.single('image'), authController.postMessage); // Use
 
 router.post('/comment', authController.postComment);
 
-router.post('/UpdateEmail', authController.UpdateEmail);
+router.post('/LikeDislike' , authController.likeDislikeMessage)
+
+router.post('/UpdateEmail',  authController.UpdateEmail);
+
+router.post('/ProfilPic', upload.single('image'), authController.ProfilPic)
 
 module.exports = router;

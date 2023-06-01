@@ -1,21 +1,23 @@
 const express = require('express');
-const { isLoggedIn } = require('../controllers/auth');
+const { isLoggedIn, fetchComments } = require('../controllers/auth');
 const router = express.Router();
 const { fetchMessages } = require('../controllers/auth');
 
 // Route handler for the homepage
-router.get('/', isLoggedIn , fetchMessages, (req, res) => {
+router.get('/', isLoggedIn , fetchMessages, fetchComments, (req, res) => {
   const messages = req.session.messages;
-  req.session.messages = null; // Reset the message after retrieving it
+  req.session.messages = null; 
   const message = req.session.message;
-  req.session.message = null; // Reset the message after retrieving it
+  req.session.message = null; 
   const socketmessages = req.session.socketmessages;
   req.session.socketmessages = null;
+  const socketComments = req.session.socketComments;
+  req.session.socketComments = null;
   const user = req.user;
-  res.render('index', { socketmessages ,message ,messages, user});
+  res.render('index', { socketComments , socketmessages , message ,messages, user});
 });
 
-// Gg Kenzo Revoie la fonction IsLoggedIn Indice Ligne 2
+// 
 router.get('/profile', isLoggedIn,(req, res) => {
   const messages = req.session.messages;
   req.session.messages = null; // Reset the message after retrieving it
@@ -28,7 +30,7 @@ router.get('/profile', isLoggedIn,(req, res) => {
   }
 });
 
-// Gg Kenzo Revoie la fonction IsLoggedIn Indice Ligne 2
+// 
 router.get('/edit', isLoggedIn,(req, res) => {
   const messages = req.session.messages;
   req.session.messages = null; // Reset the message after retrieving it

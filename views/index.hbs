@@ -182,26 +182,48 @@
   <span class="lable"></span>
                 </button> </span>
 
-                <span><div class="con-like">
-                <input title="like" type="checkbox" class="like">
-                <div class="checkmark">
-    <svg viewBox="0 0 24 24" class="outline" xmlns="http://www.w3.org/2000/svg">
-      <path d="M17.5,1.917a6.4,6.4,0,0,0-5.5,3.3,6.4,6.4,0,0,0-5.5-3.3A6.8,6.8,0,0,0,0,8.967c0,4.547,4.786,9.513,8.8,12.88a4.974,4.974,0,0,0,6.4,0C19.214,18.48,24,13.514,24,8.967A6.8,6.8,0,0,0,17.5,1.917Zm-3.585,18.4a2.973,2.973,0,0,1-3.83,0C4.947,16.006,2,11.87,2,8.967a4.8,4.8,0,0,1,4.5-5.05A4.8,4.8,0,0,1,11,8.967a1,1,0,0,0,2,0,4.8,4.8,0,0,1,4.5-5.05A4.8,4.8,0,0,1,22,8.967C22,11.87,19.053,16.006,13.915,20.313Z"></path>
-    </svg>
-    <svg viewBox="0 0 24 24" class="filled" xmlns="http://www.w3.org/2000/svg">
-      <path d="M17.5,1.917a6.4,6.4,0,0,0-5.5,3.3,6.4,6.4,0,0,0-5.5-3.3A6.8,6.8,0,0,0,0,8.967c0,4.547,4.786,9.513,8.8,12.88a4.974,4.974,0,0,0,6.4,0C19.214,18.48,24,13.514,24,8.967A6.8,6.8,0,0,0,17.5,1.917Z"></path>
-    </svg>
-    <svg class="celebrate" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="10,10 20,20" class="poly"></polygon>
-      <polygon points="10,50 20,50" class="poly"></polygon>
-      <polygon points="20,80 30,70" class="poly"></polygon>
-      <polygon points="90,10 80,20" class="poly"></polygon>
-      <polygon points="90,50 80,50" class="poly"></polygon>
-      <polygon points="80,80 70,70" class="poly"></polygon>
-    </svg>
-                </div>
-                </div></span>
-                <span class="material-icons"> publish </span>
+                <span class="Rreply">
+                  <button class="buttone btn text-dark" data-toggle="modal" onclick="loadReply()" data-target="#modalReply{{ this.idMessage }}"  >Read Reply
+   <svg viewBox="0 0 448 512" class="bell"><path d="M224 0c-17.7 0-32 14.3-32 32V49.9C119.5 61.4 64 124.2 64 200v33.4c0 45.4-15.5 89.5-43.8 124.9L5.3 377c-5.8 7.2-6.9 17.1-2.9 25.4S14.8 416 24 416H424c9.2 0 17.6-5.3 21.6-13.6s2.9-18.2-2.9-25.4l-14.9-18.6C399.5 322.9 384 278.8 384 233.4V200c0-75.8-55.5-138.6-128-150.1V32c0-17.7-14.3-32-32-32zm0 96h8c57.4 0 104 46.6 104 104v33.4c0 47.9 13.9 94.6 39.7 134.6H72.3C98.1 328 112 281.3 112 233.4V200c0-57.4 46.6-104 104-104h8zm64 352H224 160c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7s18.7-28.3 18.7-45.3z"></path></svg>
+                  </button>
+                </span>
+                
+                <form id="likeDislikeForm" action="/auth/LikeDislike" method="POST">
+  <input type="hidden" name="userId" value="{{ ../user.idUser }}">
+  <input type="hidden" name="messageId" value="{{ this.idMessage }}">
+  <span>
+    <div class="con-like" id="like">
+      <input id="likeCheckbox{{ this.idMessage }}" title="like" type="checkbox" class="like" name="like">
+    </div>
+  </span>
+  
+  <button type="submit" class="btn btn-success" name="action" value="like">Like</button>
+  <button type="submit" class="btn btn-danger" name="action" value="dislike">Dislike</button>
+                </form>
+
+              <script>
+                var likeDislikeForm = document.getElementById('likeDislikeForm');
+                var likeCheckbox = document.getElementById('likeCheckbox{{ this.idMessage }}');
+
+                likeCheckbox.addEventListener('change', function() {
+                  if (this.checked) {
+                    // Uncheck all other like checkboxes
+                    var otherLikeCheckboxes = document.querySelectorAll('.like:not(#' + this.id + ')');
+                    otherLikeCheckboxes.forEach(function(checkbox) {
+                      checkbox.checked = false;
+                    });
+                  }
+                });
+              </script>
+
+
+
+
+
+
+
+
+
             </div>
             {{/if}}
             <div class="small text-light  bg-dark">
@@ -224,10 +246,10 @@
       <div class="card">
         <span class="title">
           <button class="btn gap btn-primary ml-1 btn-sm" type="button">Comments</button>
-          <button class="btn gap btn-primary ml-3 btn-sm" type="button" >AllComments(x)</button>
           </span>
         <div id="ChangeBox">
-          <div class="comments">
+          <div class="initial-content">
+            <div class="comments">
           <div class="comment-react">
           </div>
           <div class="comment-container">
@@ -242,7 +264,11 @@
               </div>
             </div>
             <p class="comment-content">
-              {{ this.SocketMessage }}
+              <div class="d-flex flex-column">
+                <div><img class="w-25"
+                src="/uploads/{{ this.MessageImage }}" alt="{{ this.MessageImage }}"/></div>
+                <div>{{ this.SocketMessage }}</div>
+              </div>
             </p>
           </div>
         </div>
@@ -262,17 +288,109 @@
             </div>
           </div>
         </div>
+          </div>
         </div>
+        <!-- Modal -->
+<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
         
+        {{#each ../socketComments}}
+    {{#ifCond this.idMessage ../this.idMessage}}
+      <h3>{{ this.SocketComment }}</h3>
+    {{/ifCond}}
+  {{/each}}
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>    
+  
       </div>
     </div>
   </div>
     </div>
     </form>
     <!-- Modal Commentaire END-->
-
+    {{!-- Modal Reply --}}
+  <div class="modal" id="modalReply{{ this.idMessage }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center border-white">
+        <button type="button" class="close" onclick="loadHome()" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="card">
+        <span class="title">
+          <button class="btn gap btn-primary ml-1 btn-sm" type="button">Reply</button>
+        </span>
+        <div id="ChangeBox">
+          <div class="initial-content">
+            <div class="comments">
+          <div class="comment-react">
+          </div>
+          <div class="comment-container">
+            <div class="user">
+              <div class="user-pic circle">
+                <img src="/uploads/{{this.UserProfileImage}}" class="circle2" alt="">
+                </svg>
+              </div>
+              <div class="user-info">
+                <span>{{this.UserName}}</span>
+                <p>{{this.MessageDate}}</p>
+              </div>
+            </div>
+            <p class="comment-content">
+              <div class="d-flex flex-column">
+                <div><img class="w-25"
+                src="/uploads/{{ this.MessageImage }}" alt="{{ this.MessageImage }}"/></div>
+                <div>{{ this.SocketMessage }}</div>
+              </div>
+            </p>
+          </div>
+        </div>
+        <div class="text-box">
+          <div class="box-container">
+            {{#each ../socketComments}}
+              {{#ifCond this.idMessage ../this.idMessage}}
+              <div class="newcomment"><div class="user d-flex">
+                        <div class="user-pic circle">
+                          <img src="/uploads/{{this.UserProfileImage}}" class="circle2" alt="">
+                          </svg>
+                        </div>
+                        <div class="user-info">
+                          <span>{{this.UserName}}</span>
+                          <p>{{this.CommentDate}}</p>
+                        </div>
+              </div>
+                <p>{{ this.SocketComment }}</p></div>
+              
+              {{/ifCond}}
+          {{/each}}
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+    {{!-- Modal Reply END--}}
 
         {{/each}}
+        
     </div>
     <!-- feed ends -->
 
@@ -285,7 +403,15 @@
         <div class="widgets__widgetContainer">
         <div class="text-center">
         {{#if user}} 
-            <button class="btn btn-primary btn-block btn-default btn-rounded mb-4" data-toggle="modal" onclick="loadLogout()" data-target="#modalLogoutForm">Logout</button>
+           <button class="BtnLogout" data-toggle="modal" onclick="loadLogout()" data-target="#modalLogoutForm">
+  
+  <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"></path></svg></div>
+  
+  <div class="text">Logout</div>
+</button>
+
+
+
         {{else}}
             <button class="btn btn-primary btn-block btn-default btn-rounded mb-4" data-toggle="modal" onclick="loadRegister()" data-target="#modalRegisterForm">Register</button>
         </div>
@@ -294,7 +420,11 @@
         </div>
         {{/if}}
     </div>
+     
+
     </div>
+    
+
     <!-- widgets ends -->
 
     <!-- Modal Register -->
@@ -496,6 +626,10 @@
         history.pushState({}, "", DOMAIN_NAME + "/comment");
     }
 
+    function loadReply() {
+        history.pushState({}, "", DOMAIN_NAME + "/Reply");
+    }
+
     </script>
     {{!-- Compteur de Character --}}
     <script>
@@ -530,7 +664,7 @@
     snackbar.classList.add("show");
     setTimeout(function () {
       snackbar.classList.remove("show");
-    }, 10000);
+    }, 7000);
   }
 
   // Trigger the snackbar with the message from the controller
@@ -635,6 +769,7 @@ export default {
     });
   });
     </script>
+
 
 
 

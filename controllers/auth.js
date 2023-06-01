@@ -328,9 +328,9 @@ exports.postComment = async (req, res) => {
 
 exports.fetchComments = async (req, res, next) => {
   try {
-    // Fetch comments from the database with user information, including User.Roles
+    // Fetch comments from the database with user information, including User.Roles and idMessage
     db.query(
-      'SELECT c.idComment, c.PostTexte, c.PostDate, u.UserName, u.UserProfileImage, u.UserRoles FROM commentaires c JOIN users u ON c.idUser = u.idUser ORDER BY c.idComment DESC',
+      'SELECT c.idComment, c.PostTexte, c.PostDate, c.idMessage, u.UserName, u.UserProfileImage, u.UserRoles FROM commentaires c JOIN users u ON c.idUser = u.idUser ORDER BY c.idComment DESC',
       (error, results) => {
         if (error) {
           console.log(error);
@@ -363,6 +363,7 @@ exports.fetchComments = async (req, res, next) => {
           return {
             SocketComment: comment.PostTexte,
             idComment: comment.idComment,
+            idMessage: comment.idMessage,
             CommentDate: formattedDate,
             UserName: comment.UserName,
             UserProfileImage: comment.UserProfileImage,
@@ -382,6 +383,170 @@ exports.fetchComments = async (req, res, next) => {
 };
 
 
+exports.likeDislikeMessage = async (req, res) => {
+  const { userId, messageId, action } = req.body;
+
+  try {
+    if (action === 'like') {
+      // Handle the like action
+      const dislikeCheckQuery = 'SELECT * FROM dislikes WHERE UserDislike = ? AND PostDislike = ?';
+      db.query(dislikeCheckQuery, [userId, messageId], (dislikeCheckError, dislikeCheckResults) => {
+        if (dislikeCheckError) {
+          console.log(dislikeCheckError);
+          req.session.message = 'Failed to check dislike status';
+        }
+
+        if (dislikeCheckResults.length > 0) {
+          // User already disliked the message, remove the dislike
+          const removeDislikeQuery = 'DELETE FROM dislikes WHERE UserDislike = ? AND PostDislike = ?';
+          db.query(removeDislikeQuery, [userId, messageId], (removeDislikeError) => {
+            if (removeDislikeError) {
+              console.log(removeDislikeError);
+              req.session.message = 'Failed to remove dislike';
+              
+            }
+
+            // User has now removed the dislike and can add the like
+            const addLikeQuery = 'INSERT INTO likes (UserLike, PostLike) VALUES (?, ?)';
+            db.query(addLikeQuery, [userId, messageId], (addLikeError) => {
+              if (addLikeError) {
+                console.log(addLikeError);
+                req.session.message = 'Failed to add like';
+                
+              }
+
+              req.session.message = 'Like added successfully';
+              
+            });
+          });
+        } else {
+          // User has not disliked the message, check if they have already liked it
+          const likeCheckQuery = 'SELECT * FROM likes WHERE UserLike = ? AND PostLike = ?';
+          db.query(likeCheckQuery, [userId, messageId], (likeCheckError, likeCheckResults) => {
+            if (likeCheckError) {
+              console.log(likeCheckError);
+              req.session.message = 'Failed to check like status';
+             
+            }
+
+            if (likeCheckResults.length > 0) {
+              // User already liked the message, remove the like
+              const removeLikeQuery = 'DELETE FROM likes WHERE UserLike = ? AND PostLike = ?';
+              db.query(removeLikeQuery, [userId, messageId], (removeLikeError) => {
+                if (removeLikeError) {
+                  console.log(removeLikeError);
+                  req.session.message = 'Failed to remove like';
+                  
+                }
+
+                req.session.message = 'Like removed successfully';
+               
+              });
+            } else {
+              // User has not liked the message, add the like
+              const addLikeQuery = 'INSERT INTO likes (UserLike, PostLike) VALUES (?, ?)';
+              db.query(addLikeQuery, [userId, messageId], (addLikeError) => {
+                if (addLikeError) {
+                  console.log(addLikeError);
+                  req.session.message = 'Failed to add like';
+                  
+                }
+
+                req.session.message = 'Like added successfully';
+                
+              });
+            }
+          });
+        }
+      });
+    } else if (action === 'dislike') {
+      // Handle the dislike action
+      const likeCheckQuery = 'SELECT * FROM likes WHERE UserLike = ? AND PostLike = ?';
+      db.query(likeCheckQuery, [userId, messageId], (likeCheckError, likeCheckResults) => {
+        if (likeCheckError) {
+          console.log(likeCheckError);
+          req.session.message = 'Failed to check like status';
+         
+        }
+
+        if (likeCheckResults.length > 0) {
+          // User already liked the message, remove the like
+          const removeLikeQuery = 'DELETE FROM likes WHERE UserLike = ? AND PostLike = ?';
+          db.query(removeLikeQuery, [userId, messageId], (removeLikeError) => {
+            if (removeLikeError) {
+              console.log(removeLikeError);
+              req.session.message = 'Failed to remove like';
+              
+            }
+
+            // User has now removed the like and can add the dislike
+            const addDislikeQuery = 'INSERT INTO dislikes (UserDislike, PostDislike) VALUES (?, ?)';
+            db.query(addDislikeQuery, [userId, messageId], (addDislikeError) => {
+              if (addDislikeError) {
+                console.log(addDislikeError);
+                req.session.message = 'Failed to add dislike';
+                
+              }
+
+              req.session.message = 'Dislike added successfully';
+             
+            });
+          });
+        } else {
+          // User has not liked the message, check if they have already disliked it
+          const dislikeCheckQuery = 'SELECT * FROM dislikes WHERE UserDislike = ? AND PostDislike = ?';
+          db.query(dislikeCheckQuery, [userId, messageId], (dislikeCheckError, dislikeCheckResults) => {
+            if (dislikeCheckError) {
+              console.log(dislikeCheckError);
+              req.session.message = 'Failed to check dislike status';
+              
+            }
+
+            if (dislikeCheckResults.length > 0) {
+              // User already disliked the message, remove the dislike
+              const removeDislikeQuery = 'DELETE FROM dislikes WHERE UserDislike = ? AND PostDislike = ?';
+              db.query(removeDislikeQuery, [userId, messageId], (removeDislikeError) => {
+                if (removeDislikeError) {
+                  console.log(removeDislikeError);
+                  req.session.message = 'Failed to remove dislike';
+                  
+                }
+
+                req.session.message = 'Dislike removed successfully';
+                
+              });
+            } else {
+              // User has not disliked the message, add the dislike
+              const addDislikeQuery = 'INSERT INTO dislikes (UserDislike, PostDislike) VALUES (?, ?)';
+              db.query(addDislikeQuery, [userId, messageId], (addDislikeError) => {
+                if (addDislikeError) {
+                  console.log(addDislikeError);
+                  req.session.message = 'Failed to add dislike';
+                  
+                }
+
+                req.session.message = 'Dislike added successfully';
+                
+              });
+            }
+          });
+        }
+      });
+    } else {
+      req.session.message = 'Invalid action';
+    
+    }
+  } catch (error) {
+    console.log(error);
+    req.session.message = 'Failed to like/dislike message';
+    
+  }
+};
+
+
+
+
+
 //User Crud (Update Account & Delete Account)
 exports.UpdateEmail = async (req, res) => {
   
@@ -396,9 +561,7 @@ exports.UpdateEmail = async (req, res) => {
 
     try {
     const decoded = await promisify(jwt.verify)(req.session.token, process.env.JWT_SECRET);
-    console.log(decoded)
     const userId = decoded.id;
-    console.log(userId)
 
     db.query('SELECT * FROM users WHERE idUser = ?', [userId], async (error, result) => {
         if (error) {
@@ -417,12 +580,12 @@ exports.UpdateEmail = async (req, res) => {
 
 
         if (email) {
-            updateQuery += 'email = ?,';
+            updateQuery += 'UserEmail = ?,';
             updateValues.push(email);
         }
 
         if (password) {
-            updateQuery += 'password = ?,';
+            updateQuery += 'UserPassword = ?,';
             updateValues.push(password);
         }
 
@@ -456,6 +619,79 @@ exports.UpdateEmail = async (req, res) => {
     console.log(error);
 }
 };
+
+exports.ProfilPic = async (req, res) => {
+  const decoded = await promisify(jwt.verify)(req.session.token, process.env.JWT_SECRET);
+  var userId = decoded.id;
+
+  // Vérifier si le champ de fichier est présent dans la requête
+  if (!req.file || !req.file.image) {
+    return res.status(400).send('No image uploaded');
+  }
+
+  var image = req.file.image;
+  var imageName = 'profile_' + userId + '_' + Date.now() + '.jpg';
+
+  // Déplacez l'image vers le répertoire de destination ou effectuez toute autre opération de traitement souhaitée
+  image.mv('path/to/uploads/' + imageName, function(err) {
+    if (err) {
+      console.log(err);
+      return res.status(500).send('Error uploading image');
+    }
+
+    // Mettez à jour le champ UserProfileImage de l'utilisateur avec le nouveau nom de fichier
+    User.findById(userId, function(err, user) {
+      if (err) {
+        console.log(err);
+        return res.status(500).send('Error updating user profile');
+      }
+
+      user.UserProfileImage = imageName;
+      user.save(function(err) {
+        if (err) {
+          console.log(err);
+          return res.status(500).send('Error updating user profile');
+        }
+
+        return res.redirect('/'); // Redirigez vers la page souhaitée après la mise à jour du profil
+      });
+    });
+  });
+}
+
+/*exports.GetUserMessages = async (req, res) => {
+  try {
+    const decoded = await promisify(jwt.verify)(req.session.token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+
+    // Récupérer les messages de l'utilisateur spécifique
+    const userMessages = await db.query('SELECT * FROM messages WHERE idUser = ?', [userId]);
+
+    // Parcourir les messages de l'utilisateur
+    for (const message of userMessages) {
+      // Récupérer les commentaires associés à chaque message
+      const comments = await db.query('SELECT * FROM commentaires WHERE idMessage = ?', [message.idMessage]);
+
+      // Ajouter les commentaires à l'objet message
+      message.comments = comments;
+    }
+
+    return res.status(200).render('user_messages', {
+      userMessages: userMessages,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).render('error', {
+      message: 'Erreur lors de la récupération des messages',
+    });
+  }
+};*/
+
+
+
+
+
+
 
 
 
