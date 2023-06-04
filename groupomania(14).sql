@@ -1,10 +1,9 @@
--- SQLBook: Code
 -- phpMyAdmin SQL Dump
 -- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : dim. 28 mai 2023 à 22:43
+-- Généré le : dim. 04 juin 2023 à 12:00
 -- Version du serveur : 8.0.31
 -- Version de PHP : 8.0.26
 
@@ -39,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `commentaires` (
   PRIMARY KEY (`idComment`),
   KEY `idUser` (`idUser`),
   KEY `idMessage` (`idMessage`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Déchargement des données de la table `commentaires`
@@ -47,7 +46,12 @@ CREATE TABLE IF NOT EXISTS `commentaires` (
 
 INSERT INTO `commentaires` (`idComment`, `idMessage`, `PostTexte`, `PostImg`, `PostDate`, `idUser`) VALUES
 (1, 2, 'On Dit Oui Chef !', NULL, '2023-05-29 00:00:00', 1),
-(2, 2, 'Et on touche pas a l\'index !', NULL, '2023-05-29 00:00:00', 1);
+(2, 2, 'Et on touche pas a l\'index !', NULL, '2023-05-29 00:00:00', 1),
+(3, 2, 'Bon courage les gars', NULL, '2023-05-29 20:00:36', 3),
+(4, 3, '', NULL, '2023-05-29 20:09:47', 3),
+(5, 3, '', NULL, '2023-05-29 20:10:01', 1),
+(6, 3, 'Hello', NULL, '2023-05-29 21:56:26', 1),
+(7, 2, 'dsqd', NULL, '2023-05-29 22:03:39', 1);
 
 -- --------------------------------------------------------
 
@@ -63,7 +67,14 @@ CREATE TABLE IF NOT EXISTS `dislikes` (
   PRIMARY KEY (`idDislike`),
   KEY `UserDislike` (`UserDislike`),
   KEY `PostDislike` (`PostDislike`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `dislikes`
+--
+
+INSERT INTO `dislikes` (`idDislike`, `UserDislike`, `PostDislike`) VALUES
+(44, 1, 3);
 
 -- --------------------------------------------------------
 
@@ -79,39 +90,18 @@ CREATE TABLE IF NOT EXISTS `likes` (
   PRIMARY KEY (`idLike`),
   KEY `UserLike` (`UserLike`),
   KEY `PostLike` (`PostLike`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Structure de la table `messagedislikes`
+-- Déchargement des données de la table `likes`
 --
 
-DROP TABLE IF EXISTS `messagedislikes`;
-CREATE TABLE IF NOT EXISTS `messagedislikes` (
-  `idDislike` int NOT NULL AUTO_INCREMENT,
-  `UserDislike` int DEFAULT NULL,
-  `MessageDislike` int DEFAULT NULL,
-  PRIMARY KEY (`idDislike`),
-  KEY `UserDislike` (`UserDislike`),
-  KEY `MessageDislike` (`MessageDislike`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Structure de la table `messagelikes`
---
-
-DROP TABLE IF EXISTS `messagelikes`;
-CREATE TABLE IF NOT EXISTS `messagelikes` (
-  `idLike` int NOT NULL AUTO_INCREMENT,
-  `UserLike` int DEFAULT NULL,
-  `MessageLike` int DEFAULT NULL,
-  PRIMARY KEY (`idLike`),
-  KEY `UserLike` (`UserLike`),
-  KEY `MessageLike` (`MessageLike`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+INSERT INTO `likes` (`idLike`, `UserLike`, `PostLike`) VALUES
+(8, 1, 2),
+(11, 1, 12),
+(12, 1, 2),
+(15, 7, 17),
+(16, 1, 4);
 
 -- --------------------------------------------------------
 
@@ -128,14 +118,21 @@ CREATE TABLE IF NOT EXISTS `messages` (
   `MessageImage` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`idMessage`),
   KEY `idUser` (`idUser`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Déchargement des données de la table `messages`
 --
 
 INSERT INTO `messages` (`idMessage`, `MessageText`, `MessageDate`, `idUser`, `MessageImage`) VALUES
-(2, 'Bienvenue Petit Kenzo N\'oublie pas de faire l\'update sépare les controleurs de l\'update email & password de celui de l\'image de l\'utilisateur . Je serais dispo dans la soirée si tu veut pas avant malheureusement💻 ', '2023-05-29 00:28:29', 1, NULL);
+(2, 'Bienvenue Petit Kenzo N\'oublie pas de faire l\'update sépare les controleurs de l\'update email & password de celui de l\'image de l\'utilisateur . Je serais dispo dans la soirée si tu veut pas avant malheureusement💻 ', '2023-05-29 00:28:29', 1, NULL),
+(3, 'Hello guys ! It\'s a sunny day today 😊 !', '2023-05-29 20:01:52', 3, '1685383312600-mWDEa.jpg'),
+(4, 'Coucou', '2023-05-30 00:10:25', 1, NULL),
+(17, 'JE PEUT OUUUUUUUUUUU QUE LES PTIT ??????\r\n', '2023-06-01 23:08:21', 7, '1685653701049-UlP2r.jpeg'),
+(18, 'ggggg', '2023-06-02 01:22:40', 7, NULL),
+(19, '.', '2023-06-02 10:00:20', 1, NULL),
+(20, 'jnjnk,\r\n', '2023-06-02 15:47:36', 7, NULL),
+(21, 'Coucou', '2023-06-03 19:54:36', 1, '1685814876792-V8ec0.jpg');
 
 -- --------------------------------------------------------
 
@@ -149,11 +146,11 @@ CREATE TABLE IF NOT EXISTS `users` (
   `UserName` varchar(45) NOT NULL,
   `UserEmail` varchar(150) NOT NULL,
   `UserPassword` varchar(150) NOT NULL,
-  `UserProfileImage` varchar(255) DEFAULT NULL,
+  `UserProfileImage` varchar(255) DEFAULT 'defaultimg.jpg',
   `UserRoles` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`idUser`),
   UNIQUE KEY `UserEmail_UNIQUE` (`UserEmail`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Déchargement des données de la table `users`
@@ -161,7 +158,9 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 INSERT INTO `users` (`idUser`, `UserName`, `UserEmail`, `UserPassword`, `UserProfileImage`, `UserRoles`) VALUES
 (1, 'Aymerick', 'aymericksh@gmail.com', '$2a$08$zgE52.aKmtZ.K3BbmzimPu7rAtAFIRuxuibhuiz7gRyLJqHoSeGde', 'images.jpg', 'admin'),
-(2, 'Kenzo', 'splatoon92000@gmail.com', '$2a$08$c8MuAxWwrSCfMe9MKDs4a.5d.gl0HV/94zGoBKfzuOINt8wt1qBqa', 'Kenzo.jpg', NULL);
+(3, 'ninilarageuse', 'luismidream@hotmail.com', '$2a$08$vcQfVlgNjebqGgdCzNGiputtKKzHbhIevV5VpGV92zvvM/DIycfgq', 'defaultimg.jpg ', 'admin'),
+(5, 'Test', 'test@test.test', '$2a$08$lKjGp/F0orrAZXKr5Ak2x.OTPDU1zSVm/WwalJrDAJcZzoOP/vMtC', 'defaultimg.jpg', NULL),
+(7, 'Kenzo', 'kenzotanougast@gmail.com', '$2a$08$UmxDj8G/ufib62H9KJyX3eSdDbQhmtsnHxERbBRFvhpXO1c6JurcO', '1685653678780-pviBd.jpg', 'admin');
 
 --
 -- Contraintes pour les tables déchargées
@@ -173,34 +172,6 @@ INSERT INTO `users` (`idUser`, `UserName`, `UserEmail`, `UserPassword`, `UserPro
 ALTER TABLE `commentaires`
   ADD CONSTRAINT `fk_commentaires_messages` FOREIGN KEY (`idMessage`) REFERENCES `messages` (`idMessage`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_commentaires_users` FOREIGN KEY (`idUser`) REFERENCES `users` (`idUser`) ON DELETE CASCADE;
-
---
--- Contraintes pour la table `dislikes`
---
-ALTER TABLE `dislikes`
-  ADD CONSTRAINT `fk_dislikes_commentaires` FOREIGN KEY (`PostDislike`) REFERENCES `commentaires` (`idComment`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_dislikes_users` FOREIGN KEY (`UserDislike`) REFERENCES `users` (`idUser`) ON DELETE CASCADE;
-
---
--- Contraintes pour la table `likes`
---
-ALTER TABLE `likes`
-  ADD CONSTRAINT `fk_likes_commentaires` FOREIGN KEY (`PostLike`) REFERENCES `commentaires` (`idComment`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_likes_users` FOREIGN KEY (`UserLike`) REFERENCES `users` (`idUser`) ON DELETE CASCADE;
-
---
--- Contraintes pour la table `messagedislikes`
---
-ALTER TABLE `messagedislikes`
-  ADD CONSTRAINT `fk_messagedislikes_messages` FOREIGN KEY (`MessageDislike`) REFERENCES `messages` (`idMessage`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_messagedislikes_users` FOREIGN KEY (`UserDislike`) REFERENCES `users` (`idUser`) ON DELETE CASCADE;
-
---
--- Contraintes pour la table `messagelikes`
---
-ALTER TABLE `messagelikes`
-  ADD CONSTRAINT `fk_messagelikes_messages` FOREIGN KEY (`MessageLike`) REFERENCES `messages` (`idMessage`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_messagelikes_users` FOREIGN KEY (`UserLike`) REFERENCES `users` (`idUser`) ON DELETE CASCADE;
 
 --
 -- Contraintes pour la table `messages`

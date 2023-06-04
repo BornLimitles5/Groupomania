@@ -47,7 +47,7 @@
             <span class="material-icons"> more_horiz </span>
             <h2>More</h2>
         </div>
-        <button class="sidebar__tweet">Tweet</button>
+        <button class="sidebar__tweet">Post</button>
     </div>
     <!-- sidebar ends -->
 
@@ -67,17 +67,26 @@
         </div>
 
         <hr>
+
         <form action="/auth/ProfilPic" method="POST" enctype="multipart/form-data">
-        <h3 class="edit-h3">Change Profile Pic</h3>
-        <input class="pic-btn" type="file" name="image"></input>
-        <input class="pic-btn2" type="submit" ></input>
+        <input type="hidden" name="userId" value="{{ user.idUser }}">
+        <input type="hidden" name="userImg" value="{{ user.UserProfileImage }}">
+        
+            <h3 class="edit-h3">Change Profile Pic</h3>
+            <input class="pic-btn" type="file" name="image"></input>
+            <input class="pic-btn2" type="submit" ></input>
         </form>
         <hr>
         <a class="a-button" data-toggle="modal" onclick="loadEmail()" data-target="#modalUpdateForm"><h3 class="edit-h3">Change your Email/Password<h3></a>        
         <hr>
         <a class="a-button"><h3 class="edit-h3">Change your bio</h3></a>
         <hr>
-        <a class="a-button" onclick="/auth/delete"> <h3 class="edit-h3">Destroy your fucking account</h3> </a>
+
+        <form action="/auth/Delete" method="post">
+            <input type="hidden" name="UserId" value="{{ user.idUser }}">
+            <input type="submit" class="pic-btn" value="Delete your account">
+            </input>
+        </form>
 
         <form action="/auth/UpdateEmail" method="POST">
         <div class="modal" id="modalUpdateForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">

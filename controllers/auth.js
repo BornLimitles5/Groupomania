@@ -1,6 +1,8 @@
 const mysql = require("mysql");
 const jwt = require('jsonwebtoken');
 const bcryptjs = require('bcryptjs');
+const path = require('path');
+const fs = require('fs');
 const { promisify } = require('util');
 const { validationResult } = require('express-validator');
 const { log } = require("console");
@@ -14,7 +16,7 @@ const db = mysql.createConnection({
     charset: 'utf8mb4'
 });
 
-//~Jolie Regex~
+//~Jolie Regex~ 
 const emailRegex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
 const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.*\s).{12,}$/;
 
@@ -222,7 +224,7 @@ exports.postMessage = async (req, res) => {
             req.session.messages = 'Message posted successfully';
             return res.redirect('/');
           }
-        );
+        ); 
       } else {
         req.session.message = 'Please enter a message or upload an image';
         return res.redirect('/');
@@ -238,7 +240,7 @@ exports.fetchMessages = async (req, res, next) => {
   try {
     // Fetch messages from the database with user information, including User.Roles
     db.query(
-      'SELECT m.idMessage, m.MessageText, m.MessageDate, m.MessageImage, u.UserName, u.UserProfileImage, u.UserRoles FROM messages m JOIN users u ON m.idUser = u.idUser ORDER BY m.idMessage DESC',
+      'SELECT m.idMessage, m.MessageText, m.MessageDate, m.MessageImage, u.UserName, u.UserProfileImage, u.UserRoles, u.idUser FROM messages m JOIN users u ON m.idUser = u.idUser ORDER BY m.idMessage DESC',
       (error, results) => {
         if (error) {
           console.log(error);
@@ -271,6 +273,7 @@ exports.fetchMessages = async (req, res, next) => {
           return {
             SocketMessage: message.MessageText,
             idMessage: message.idMessage,
+            idUser: message.idUser,
             MessageDate: formattedDate,
             MessageImage: message.MessageImage,
             UserName: message.UserName,
@@ -290,6 +293,7 @@ exports.fetchMessages = async (req, res, next) => {
     res.redirect('/');
   }
 };
+
 
 exports.postComment = async (req, res) => {
   try {
@@ -544,9 +548,6 @@ exports.likeDislikeMessage = async (req, res) => {
 };
 
 
-
-
-
 //User Crud (Update Account & Delete Account)
 exports.UpdateEmail = async (req, res) => {
   
@@ -620,72 +621,72 @@ exports.UpdateEmail = async (req, res) => {
 }
 };
 
-exports.ProfilPic = async (req, res) => {
-  const decoded = await promisify(jwt.verify)(req.session.token, process.env.JWT_SECRET);
-  var userId = decoded.id;
 
-  // Vérifier si le champ de fichier est présent dans la requête
-  if (!req.file || !req.file.image) {
-    return res.status(400).send('No image uploaded');
+exports.ProfilPic = async (req, res) => {
+  const { filename } = req.file;
+  const { userId, userImg } = req.body;
+  console.log(filename);
+  console.log(userId);
+  console.log(userImg);
+
+  // Step 1: Check if there is an image
+  if (!filename) {
+    req.session.message = 'No image uploaded';
+    return res.redirect('/');
   }
 
-  var image = req.file.image;
-  var imageName = 'profile_' + userId + '_' + Date.now() + '.jpg';
-
-  // Déplacez l'image vers le répertoire de destination ou effectuez toute autre opération de traitement souhaitée
-  image.mv('path/to/uploads/' + imageName, function(err) {
-    if (err) {
-      console.log(err);
-      return res.status(500).send('Error uploading image');
-    }
-
-    // Mettez à jour le champ UserProfileImage de l'utilisateur avec le nouveau nom de fichier
-    User.findById(userId, function(err, user) {
-      if (err) {
-        console.log(err);
-        return res.status(500).send('Error updating user profile');
+  // Step 2: Update the user's profile image
+  db.query(
+    'UPDATE users SET UserProfileImage = ? WHERE idUser = ?',
+    [filename, userId],
+    (error) => {
+      if (error) {
+        console.log(error);
+        req.session.message = 'Error updating the profile picture';
+        return res.redirect('/');
       }
 
-      user.UserProfileImage = imageName;
-      user.save(function(err) {
-        if (err) {
-          console.log(err);
-          return res.status(500).send('Error updating user profile');
-        }
+      // Step 3: Delete the old image (assuming the previous image is stored in the 'public/uploads/' directory)
+      if (userImg) {
+        const oldImagePath = path.join(__dirname, '..', 'public', 'uploads', userImg);
+        fs.unlink(oldImagePath, (err) => {
+          if (err) {
+            console.log(err);
+            // Handle the error or log it if necessary
+          }
+        });
+      }
 
-        return res.redirect('/'); // Redirigez vers la page souhaitée après la mise à jour du profil
-      });
+      req.session.messages = 'Profile picture updated successfully';
+      return res.redirect('/');
+    }
+  );
+};
+
+
+exports.Delete = async (req, res) => {
+
+  //Step 1 Get the UserId -_- 🤷 ET ARRETE D'ECRIRE ICI 
+  const  UserId  = req.body.UserId;
+  console.log(UserId)
+  //Step 1 Bonus Verifier que l'user a un tokken
+  
+  //Step 2 Bye Bye User Je me souviens pas qu'on a un champs id en bdd mais bon on va dire c'est la fatigue
+    db.query('DELETE FROM users WHERE idUser = ?', UserId, (err, result) => {
+     if(err){
+      console.log(err)
+      return res.status(500).render('edit', {
+        message: 'Erreur lors du delete',
     });
-  });
+    }
+    else{
+      return res.status(200).render('edit', {
+        message: 'votre compte à été supprimer',
+    });
+    }
+   })
 }
 
-/*exports.GetUserMessages = async (req, res) => {
-  try {
-    const decoded = await promisify(jwt.verify)(req.session.token, process.env.JWT_SECRET);
-    const userId = decoded.id;
-
-    // Récupérer les messages de l'utilisateur spécifique
-    const userMessages = await db.query('SELECT * FROM messages WHERE idUser = ?', [userId]);
-
-    // Parcourir les messages de l'utilisateur
-    for (const message of userMessages) {
-      // Récupérer les commentaires associés à chaque message
-      const comments = await db.query('SELECT * FROM commentaires WHERE idMessage = ?', [message.idMessage]);
-
-      // Ajouter les commentaires à l'objet message
-      message.comments = comments;
-    }
-
-    return res.status(200).render('user_messages', {
-      userMessages: userMessages,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).render('error', {
-      message: 'Erreur lors de la récupération des messages',
-    });
-  }
-};*/
 
 
 

@@ -45,7 +45,7 @@
             <span class="material-icons"> more_horiz </span>
             <h2>More</h2>
         </div>
-        <button class="sidebar__tweet">Tweet</button>
+        <button class="sidebar__tweet">Post</button>
     </div>
     <!-- sidebar ends -->
 
@@ -62,14 +62,257 @@
                 <img class="circle3" src="/uploads/{{ user.UserProfileImage }}" alt="">
                 <h4>{{ user.UserName }}</h4>
                 <a href="edit"><input class="twitter-btn" type="button" value="Edit Profil" class="sidebarOption"></a>
-            </div>
-
-            
-            
+            </div>          
         </div>
 
-
         <hr>
+        
+        
+
+         {{#each socketmessages}}
+            {{#ifCond this.idUser ../user.idUser}} 
+            <div class="post__body">
+              <div class="post__header">
+                <div class="post__headerText AllPost">
+                    <div > 
+                        <img src="/uploads/{{this.UserProfileImage}}" class="circle"   alt="">
+                    </div>
+                    <div>
+                      <h3>
+                         @{{ this.UserName }}  
+                         {{#if this.UserRoles}}
+                            <span class="post__headerSpecial"> 
+                            <span class="material-icons post__badge"> verified </span>@Admin</span>
+                         {{/if}}
+                      </h3>
+                </div>
+              </div>
+              <div class="post__headerDescription">
+                <p>{{ this.SocketMessage }}</p>
+              </div>
+            </div>
+            <div class="socketimg">
+                <img src="/uploads/{{ this.MessageImage }}" alt="{{ this.MessageImage }}"/>
+            </div>
+            {{#if ../user}}
+            <div class="post__footer">
+                
+                <span class="spane" > 
+                  <button  data-toggle="modal" onclick="loadComment()" data-target="#modalComment{{ this.idMessage }}" class="button btn">
+                      <svg class="svg-icon" fill="none" height="22" viewBox="0 0 20 20" width="22" xmlns="http://www.w3.org/2000/svg"><g stroke="#fff" stroke-linecap="round" stroke-width="1.5"><path d="m6.66669 6.66667h6.66671"></path><path clip-rule="evenodd" d="m3.33331 5.00001c0-.92047.74619-1.66667 1.66667-1.66667h10.00002c.9205 0 1.6666.7462 1.6666 1.66667v6.66669c0 .9205-.7461 1.6666-1.6666 1.6666h-4.8274c-.1105 0-.21654.044-.29462.122l-2.50004 2.5c-.26249.2625-.71129.0766-.71129-.2945v-1.9108c0-.2301-.18655-.4167-.41667-.4167h-1.25c-.92048 0-1.66667-.7461-1.66667-1.6666z" fill-rule="evenodd"></path><path d="m6.66669 10h2.5"></path></g></svg>
+                      <span class="lable"></span>
+                </button> </span>
+
+                <span class="Rreply">
+                  <button class="buttone btn text-dark" data-toggle="modal" onclick="loadReply()" data-target="#modalReply{{ this.idMessage }}"  >Read Reply
+                     <svg viewBox="0 0 448 512" class="bell"><path d="M224 0c-17.7 0-32 14.3-32 32V49.9C119.5 61.4 64 124.2 64 200v33.4c0 45.4-15.5 89.5-43.8 124.9L5.3 377c-5.8 7.2-6.9 17.1-2.9 25.4S14.8 416 24 416H424c9.2 0 17.6-5.3 21.6-13.6s2.9-18.2-2.9-25.4l-14.9-18.6C399.5 322.9 384 278.8 384 233.4V200c0-75.8-55.5-138.6-128-150.1V32c0-17.7-14.3-32-32-32zm0 96h8c57.4 0 104 46.6 104 104v33.4c0 47.9 13.9 94.6 39.7 134.6H72.3C98.1 328 112 281.3 112 233.4V200c0-57.4 46.6-104 104-104h8zm64 352H224 160c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7s18.7-28.3 18.7-45.3z"></path></svg>
+                  </button>
+                </span>
+              
+                
+                <form id="likeDislikeForm" action="/auth/LikeDislike" method="POST">
+                     <input type="hidden" name="userId" value="{{ ../user.idUser }}">
+                    <input type="hidden" name="messageId" value="{{ this.idMessage }}">
+                          <span>
+                            <div class="con-like" id="like">
+                              <input id="likeCheckbox{{ this.idMessage }}" title="like" type="checkbox" class="like" name="like">
+                            </div>
+                          </span>
+  
+                          <button type="submit" class="btn btn-success" name="action" value="like">Like</button>
+                          <button type="submit" class="btn btn-danger" name="action" value="dislike">Dislike</button>
+                </form>
+  
+
+              <script>
+                var likeDislikeForm = document.getElementById('likeDislikeForm');
+                var likeCheckbox = document.getElementById('likeCheckbox{{ this.idMessage }}');
+
+                likeCheckbox.addEventListener('change', function() {
+                  if (this.checked) {
+                    // Uncheck all other like checkboxes
+                    var otherLikeCheckboxes = document.querySelectorAll('.like:not(#' + this.id + ')');
+                    otherLikeCheckboxes.forEach(function(checkbox) {
+                      checkbox.checked = false;
+                    });
+                  }
+                });
+              </script>
+
+            </div>
+            {{/if}}
+            <div class="small text-light  bg-dark">
+                <i>{{ this.MessageDate }}</i>
+            </div>
+            </div>
+            
+
+            <!-- Modal Commentaire -->
+    <form action="/auth/comment" method="post">
+    <input type="hidden" name="userId" value="{{ ../user.idUser }}">
+    <input type="hidden" name="messageId" value="{{ this.idMessage }}">
+    <div class="modal" id="modalComment{{ this.idMessage }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center border-white">
+        <button type="button" class="close" onclick="loadHome()" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="card">
+        <span class="title">
+          <button class="btn gap btn-primary ml-1 btn-sm" type="button">Comments</button>
+          </span>
+        <div id="ChangeBox">
+          <div class="initial-content">
+            <div class="comments">
+          <div class="comment-react">
+          </div>
+          <div class="comment-container">
+            <div class="user">
+              <div class="user-pic circle">
+                <img src="/uploads/{{this.UserProfileImage}}" class="circle2" alt="">
+                </svg>
+              </div>
+              <div class="user-info">
+                <span>{{this.UserName}}</span>
+                <p>{{this.MessageDate}}</p>
+              </div>
+            </div>
+            <p class="comment-content">
+              <div class="d-flex flex-column">
+                <div><img class="w-25"
+                src="/uploads/{{ this.MessageImage }}" alt="{{ this.MessageImage }}"/></div>
+                <div>{{ this.SocketMessage }}</div>
+              </div>
+            </p>
+          </div>
+        </div>
+        <div class="text-box">
+          <div class="box-container">
+            <textarea name="commentText" required placeholder="Reply"></textarea>
+            <div>
+              <div class="formatting">
+                
+                <button type="submit" class="send" title="Send">
+                  <svg fill="none" viewBox="0 0 24 24" height="18" width="18" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#ffffff" d="M12 5L12 20"></path>
+                    <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#ffffff" d="M7 9L11.2929 4.70711C11.6262 4.37377 11.7929 4.20711 12 4.20711C12.2071 4.20711 12.3738 4.37377 12.7071 4.70711L17 9"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        
+            
+        <!-- Modal -->
+<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        
+        {{#each ../socketComments}}
+    {{#ifCond this.idMessage ../this.idMessage}}
+      <h3>{{ this.SocketComment }}</h3>
+    {{/ifCond}}
+  {{/each}}
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>    
+  
+      </div>
+    </div>
+  </div>
+    </div>
+    </form>
+    <!-- Modal Commentaire END-->
+    {{!-- Modal Reply --}}
+  <div class="modal" id="modalReply{{ this.idMessage }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center border-white">
+        <button type="button" class="close" onclick="loadHome()" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="card">
+        <span class="title">
+          <button class="btn gap btn-primary ml-1 btn-sm" type="button">Reply</button>
+        </span>
+        <div id="ChangeBox">
+          <div class="initial-content">
+            <div class="comments">
+          <div class="comment-react">
+          </div>
+          <div class="comment-container">
+            <div class="user">
+              <div class="user-pic circle">
+                <img src="/uploads/{{this.UserProfileImage}}" class="circle2" alt="">
+                </svg>
+              </div>
+              <div class="user-info">
+                <span>{{this.UserName}}</span>
+                <p>{{this.MessageDate}}</p>
+              </div>
+            </div>
+            <p class="comment-content">
+              <div class="d-flex flex-column">
+                <div><img class="w-25"
+                src="/uploads/{{ this.MessageImage }}" alt="{{ this.MessageImage }}"/></div>
+                <div>{{ this.SocketMessage }}</div>
+              </div>
+            </p>
+          </div>
+        </div>
+        <div class="text-box">
+          <div class="box-container">
+            {{#each ../socketComments}}
+              {{#ifCond this.idMessage ../this.idMessage}}
+              <div class="newcomment"><div class="user d-flex">
+                        <div class="user-pic circle">
+                          <img src="/uploads/{{this.UserProfileImage}}" class="circle2" alt="">
+                          </svg>
+                        </div>
+                        <div class="user-info">
+                          <span>{{this.UserName}}</span>
+                          <p>{{this.CommentDate}}</p>
+                        </div>
+              </div>
+                <p>{{ this.SocketComment }}</p></div>
+              
+              {{/ifCond}}
+          {{/each}}
+        
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+    {{!-- Modal Reply END--}}
+         {{/ifCond}}
+        {{/each}}
+        
+    </div>
+    <!-- feed ends -->
+        
     <!-- tweetbox ends -->
 
    {{!-- Socket.io --}}

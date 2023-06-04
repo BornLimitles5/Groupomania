@@ -50,4 +50,8 @@ router.post('/UpdateEmail',  authController.UpdateEmail);
 
 router.post('/ProfilPic', upload.single('image'), authController.ProfilPic)
 
+router.post('/Delete', authController.Delete)
+
+
+
 module.exports = router;

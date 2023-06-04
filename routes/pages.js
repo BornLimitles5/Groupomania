@@ -1,5 +1,5 @@
 const express = require('express');
-const { isLoggedIn, fetchComments } = require('../controllers/auth');
+const { isLoggedIn, fetchComments, GetUserMessages } = require('../controllers/auth');
 const router = express.Router();
 const { fetchMessages } = require('../controllers/auth');
 
@@ -18,13 +18,20 @@ router.get('/', isLoggedIn , fetchMessages, fetchComments, (req, res) => {
 });
 
 // 
-router.get('/profile', isLoggedIn,(req, res) => {
+router.get('/profile', isLoggedIn,  fetchComments, fetchMessages, (req, res) => {
   const messages = req.session.messages;
   req.session.messages = null; // Reset the message after retrieving it
 
+  const message = req.session.message;
+  req.session.message = null; 
+  const socketmessages = req.session.socketmessages;
+  req.session.socketmessages = null;
+  const socketComments = req.session.socketComments;
+  req.session.socketComments = null;
   const user = req.user;
+
   if (user) {
-    res.render('profile', { messages, user });
+    res.render('profile', { messages, user, message, socketmessages, socketComments });
   } else {
     res.redirect('/');
   }
