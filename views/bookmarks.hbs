@@ -10,10 +10,10 @@
             <h2>Home</h2>
         </div></a>
 
-        <a href="bookmarks"><div class="sidebarOption">
+        <div class="sidebarOption active">
             <span class="material-icons"> bookmark_border </span>
             <h2>Bookmarks</h2>
-        </div></a>
+        </div>
         
         {{#if user.UserRoles}}
         <a href="admin"><div class="sidebarOption">
@@ -21,7 +21,7 @@
             <h2>Admin</h2>
         </div></a>
         {{/if}}
-           <a href="profile"><div class="sidebarOption active">
+           <a href="profile"><div class="sidebarOption">
         
             <span  class="material-icons"> perm_identity </span>
             <h2>Profile</h2>
@@ -51,7 +51,6 @@
             <div class="profile-head-info">
                 <img class="circle3" src="/uploads/{{ user.UserProfileImage }}" alt="">
                 <h4>{{ user.UserName }}</h4>
-                <a href="edit"><input class="twitter-btn" type="button" value="Edit Profil" class="sidebarOption"></a>
             </div>          
         </div>
 
@@ -59,11 +58,11 @@
         
         
          {{#each socketmessages}}
-            {{#ifCond this.idUser ../user.idUser}} 
+            {{#ifCond this.idLike ../likes.idLike}} 
             <div class="post__body">
               <div class="post__header">
                 <div class="post__headerText AllPost">
-                    <div > 
+                    <div> 
                         <img src="/uploads/{{this.UserProfileImage}}" class="circle"   alt="">
                     </div>
                     <div>
@@ -319,48 +318,7 @@
         
     <!-- tweetbox ends -->
 
-    <!--Modal Post -->
-    <div class="modal" id="modalPost" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
-            <div class="modal-dialog" role="document">
-        <div class="modal-content">
-        <div class="modal-header text-center border-white">
-                <button type="button" class="close" onclick="loadHome()" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="md-form mb-4">
-            <form class="com" action="/auth/post?userId={{ user.idUser }}" method="POST" enctype="multipart/form-data">
-            <div class="tweetbox__input">
-                
-                <div class="UserProfile">
-                    <img class="rounded" src="/uploads/{{user.UserProfileImage}}" alt="Profile Image" class="profileImage" />
-                </div>
-                <label for="imageInput">
-                <input type="file" id="imageInput" name="image" accept="image/*" onchange="previewImage(event)" style="display: none" />
-                </label>
-                <textarea class="textcom" id="myTextarea" name="messageText" placeholder="What's happening {{ user.UserName }}?" oninput="updateCharacterCount()" maxlength="280"></textarea>
-            </div>
-            <div class="d-flex under">
-                <div class="imagePreview">
-                <img id="preview" src=""/>
-                </div>
-                <div>
-                <label for="imageInput">
-                    <img class="material-icons addimg" src="/img/addimg.png" alt="">
-                </div>
-                </label>
-
-                <div>
-                <p id="charCount">280 caractères restants</p>
-                </div>
-                <button type="submit" class="tweetBox__tweetButton">Post !</button>
-            </div>
-            </form>
-        </div>
-        </div>
-    </div>
-    </div>
-    <!--Modal Post End -->
+    
 
 
 

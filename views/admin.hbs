@@ -90,30 +90,51 @@
                                         {{this.UserRoles}}
                                     </td>
                                     <td class="crud-actions">
-                                        
-                                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#staticBackdrop">
-                                        Message
-                                        </button>
 
+                                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#staticBackdrop{{this.idUser}}">
+                                        Message
+                                        </button> 
 
                                         <button class="btn btn-primary btn-block btn-default btn-rounded mb-4" data-toggle="modal"data-target="#modalRegisterForm{{this.idUser}}">Edit</button>
                                         
                                         <!-- Messages -->
-                                                <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                                <div class="modal-dialog">
+                                                    <div class="modal fade" id="staticBackdrop{{this.idUser}}" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">                                                <div class="modal-dialog">
                                                     <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
+                                                        <h5 class="modal-title" id="staticBackdropLabel">This User Message And Comment</h5>
                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
                                                         </button>
                                                     </div>
                                                     <div class="modal-body">
-                                                        ...
+                                                        This User Message
+                                                        {{#each ../socketmessages}}
+                                                        {{#ifCond this.idUser  ../this.idUser }}
+                                                            <form class="d-flex justify-content-around flex-column" action="/auth/DeleteMessage" method="post">
+                                                            
+                                                                <input type="hidden" name="messageId" value="{{ this.idMessage }}">
+                                                                <em>{{this.SocketMessage}}</em>
+                                                                <img class="w-25" src="/uploads/{{this.MessageImage}}" alt="{{this.MessageImage}}">
+                                                                <button type="submit"  class="btn btn-danger">Delete</button>
+                                                            </form> 
+                                                        {{/ifCond}}
+                                                        {{/each}}
+                                                            This User Comment
+                                                            {{#each ../socketComments}}
+                                                            {{#ifCond this.UserId ../this.idUser }}
+                                                            <form action="/auth/DeleteComment"  class="d-flex justify-content-around flex-column" method="post">
+                                                                <input type="hidden" name="commentId" value="{{this.idComment}}">
+                                                                <em class="d-flex flex-column"> {{ this.SocketComment }}</em>
+                                                                <img class="w-25" src="/uploads/{{this.PostImg}}" alt="{{this.PostImg}}">
+                                                                <button type="submit"  class="btn btn-danger">Delete</button>
+                                                            </form>
+                                                            {{/ifCond}}
+                                                        {{/each}}
+                                                        
+                                                        
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                        <button type="button" class="btn btn-primary">Understood</button>
                                                     </div>
                                                     </div>
                                                 </div>

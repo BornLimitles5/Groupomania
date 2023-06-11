@@ -47,10 +47,13 @@ router.get('/profile', isLoggedIn,  fetchComments, fetchMessages, (req, res) => 
 
   const message = req.session.message;
   req.session.message = null; 
+
   const socketmessages = req.session.socketmessages;
   req.session.socketmessages = null;
+
   const socketComments = req.session.socketComments;
   req.session.socketComments = null;
+
   const user = req.user;
 
   if (user) {
@@ -59,6 +62,7 @@ router.get('/profile', isLoggedIn,  fetchComments, fetchMessages, (req, res) => 
     res.redirect('/');
   }
 });
+
 
 // 
 router.get('/edit', isLoggedIn,(req, res) => {
@@ -75,7 +79,7 @@ router.get('/edit', isLoggedIn,(req, res) => {
 });
 
 // 
-router.get('/admin', AllLoggedIn, isLoggedIn, isLoggedInAsAdmin ,CountUser,CountMessage,(req, res) => {
+router.get('/admin', AllLoggedIn, isLoggedIn, isLoggedInAsAdmin ,CountUser,CountMessage, fetchMessages,fetchComments,(req, res) => {
   const message = req.session.message;
   req.session.message = null; 
 
@@ -89,9 +93,14 @@ router.get('/admin', AllLoggedIn, isLoggedIn, isLoggedInAsAdmin ,CountUser,Count
 
   const CountM = req.CountMessage;
 
+  const socketmessages = req.session.socketmessages;
+  req.session.socketmessages = null;
+
+  const socketComments = req.session.socketComments;
+  req.session.socketComments = null;
 
   if (admin) {
-    res.render('admin', { admin,user , AllUser ,message , CountU , CountM });
+    res.render('admin', { admin, user , AllUser ,message , CountU , CountM ,socketmessages,socketComments});
   } else {
     res.redirect('/');
   }
@@ -109,6 +118,29 @@ router.get('/Succes', isLoggedInAsAdmin, isLoggedIn, (req, res) => {
 
   if (admin) {
     res.render('admin', {admin , user , AllUser ,message });
+  } else {
+    res.redirect('/');
+  }
+});
+
+// 
+router.get('/bookmarks', isLoggedIn,  fetchComments, fetchMessages, (req, res) => {
+  const messages = req.session.messages;
+  req.session.messages = null; // Reset the message after retrieving it
+
+  const message = req.session.message;
+  req.session.message = null; 
+
+  const socketmessages = req.session.socketmessages;
+  req.session.socketmessages = null;
+
+  const socketComments = req.session.socketComments;
+  req.session.socketComments = null;
+
+  const user = req.user;
+
+  if (user) {
+    res.render('bookmarks', { messages, user, message, socketmessages, socketComments });
   } else {
     res.redirect('/');
   }
