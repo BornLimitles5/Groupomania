@@ -2,6 +2,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  
+}
+
+a{
+  color: black !important;
 }
 
 body {
@@ -14,6 +19,7 @@ body {
   align-items: center;
   cursor: pointer;
 }
+
 
 .sidebarOption .material-icons,
 .fa-twitter {

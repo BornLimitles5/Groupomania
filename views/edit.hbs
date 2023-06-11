@@ -5,49 +5,39 @@
 <!-- sidebar starts -->
     <div class="sidebar">
         <div class="sidebarOption justify-content-center">
-            <a href="index"><img src="/img/GroupBlkTrsp.png" class="w-50 text-center" alt=""></a>
+            <img src="/img/GroupBlkTrsp.png" class="w-50 text-center" alt="">
         </div>
-        <a href="/"><div class="sidebarOption">
+        <a href="/"><div class="sidebarOption active">
             <span class="material-icons"> home </span>
             <h2>Home</h2>
-        </div>
-        </a>
-
-        <div class="sidebarOption">
-            <span class="material-icons"> search </span>
-            <h2>Explore</h2>
-        </div>
-
-        <div class="sidebarOption">
-            <span class="material-icons"> notifications_none </span>
-            <h2>Notifications</h2>
-        </div>
-
-        <div class="sidebarOption">
-            <span class="material-icons"> mail_outline </span>
-            <h2>Messages</h2>
-        </div>
+        </div></a>
 
         <div class="sidebarOption">
             <span class="material-icons"> bookmark_border </span>
             <h2>Bookmarks</h2>
         </div>
-
-        <div class="sidebarOption">
+        
+        {{#if admin}}
+        <a href="admin"><div class="sidebarOption">
             <span class="material-icons"> list_alt </span>
-            <h2>Lists</h2>
-        </div>
-
-        <div class="sidebarOption active">
-            <span class="material-icons"> perm_identity </span>
+            <h2>Admin</h2>
+        </div></a>
+        {{/if}}
+           <a href="profile"><div class="sidebarOption">
+        
+            <span  class="material-icons"> perm_identity </span>
             <h2>Profile</h2>
-        </div>
+        </div></a>
 
         <div class="sidebarOption">
             <span class="material-icons"> more_horiz </span>
             <h2>More</h2>
         </div>
-        <button class="sidebar__tweet">Post</button>
+        {{#if user}}
+
+        <button class="sidebar__tweet" data-toggle="modal" onclick="loadPushState()" data-target="#modalPost">Post</button>
+
+        {{/if}}
     </div>
     <!-- sidebar ends -->
 
@@ -67,7 +57,7 @@
         </div>
 
         <hr>
-
+        
         <form action="/auth/ProfilPic" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="userId" value="{{ user.idUser }}">
         <input type="hidden" name="userImg" value="{{ user.UserProfileImage }}">
@@ -78,9 +68,6 @@
         </form>
         <hr>
         <a class="a-button" data-toggle="modal" onclick="loadEmail()" data-target="#modalUpdateForm"><h3 class="edit-h3">Change your Email/Password<h3></a>        
-        <hr>
-        <a class="a-button"><h3 class="edit-h3">Change your bio</h3></a>
-        <hr>
 
         <form action="/auth/Delete" method="post">
             <input type="hidden" name="UserId" value="{{ user.idUser }}">

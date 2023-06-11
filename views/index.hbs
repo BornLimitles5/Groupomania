@@ -11,29 +11,16 @@
         </div></a>
 
         <div class="sidebarOption">
-            <span class="material-icons"> search </span>
-            <h2>Explore</h2>
-        </div>
-
-        <div class="sidebarOption">
-            <span class="material-icons"> notifications_none </span>
-            <h2>Notifications</h2>
-        </div>
-
-        <div class="sidebarOption">
-            <span class="material-icons"> mail_outline </span>
-            <h2>Messages</h2>
-        </div>
-
-        <div class="sidebarOption">
             <span class="material-icons"> bookmark_border </span>
             <h2>Bookmarks</h2>
         </div>
-
-        <div class="sidebarOption">
+        
+        {{#if user.UserRoles}}
+        <a href="admin"><div class="sidebarOption">
             <span class="material-icons"> list_alt </span>
-            <h2>Lists</h2>
-        </div>
+            <h2>Admin</h2>
+        </div></a>
+        {{/if}}
            <a href="profile"><div class="sidebarOption">
         
             <span  class="material-icons"> perm_identity </span>
@@ -46,23 +33,61 @@
         </div>
         {{#if user}}
 
-        <button class="sidebar__tweet" data-toggle="modal" onclick="loadPushState()" data-target="#modalPost">Post</button>
 
         {{/if}}
     </div>
     <!-- sidebar ends -->
+    <!-- Display like count -->
 
-    <!-- feed starts -->
+
+    <!-- feed starts navbar mobile -->
     <div class="feed">
-        <div class="feed__header">
-            <h2>Home</h2>
+        <div class="feed__header d-lg-block d-xl-none">
+  <div class="fixed-top">
+    <div class="collapse" id="navbarToggleExternalContent">
+      <div class="bg-light p-4">
+          {{#if user}}
+          <form action="/auth/logout" method="post" >
+            <button type="submit" class="BtnLogout">
+              <div class="sign">
+                <svg viewBox="0 0 512 512">
+                  <path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z">
+                  </path>
+                </svg>
+              </div>
+              <div class="text">Logout</div>
+            </button>
+          </form>
+              <hr>
+              {{#if user.UserRoles}}
+        <a class="d-flex" href="admin">
+            <span class="material-icons"> list_alt </span>
+            <h2>Admin</h2>
+            </a>
+        {{/if}}
+           <a  class="d-flex" href="profile">
+        
+            <span  class="material-icons"> perm_identity </span>
+            <h2>Profile</h2>
+      </a>
+          {{else}}
+            <button class="btn btn-primary btn-block btn-default btn-rounded mb-4" data-toggle="modal" onclick="loadRegister()" data-target="#modalRegisterForm">Register</button>
+            <button class="btn btn-primary btn-block btn-default btn-rounded mb-4" data-toggle="modal" onclick="loadLogin()" data-target="#modalSubscriptionForm">Login</button>
+          {{/if}}
+      </div>
+    </div>
+    <nav class="navbar navbar-light bg-light text-dark">Groupomania
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </nav>
+  </div>
         </div>
-
         <!-- tweetbox starts -->
         {{#if user}}
         <div class="tweetBox">
             <form class="com" action="/auth/post?userId={{ user.idUser }}" method="POST" enctype="multipart/form-data">
-            <div class="tweetbox__input">
+            <div class="tweetbox__input mt-3">
                 
                 <div class="UserProfile">
                     <img class="circle" src="/uploads/{{user.UserProfileImage}}" alt="Profile Image" class="profileImage" />
@@ -93,6 +118,7 @@
             <div id="emojiContainer"></div>
         </div>
         {{/if}}
+       
         <!-- tweetbox ends -->
         <!-- Emoji Picker Modal -->
        <div class="modal" id="emojiPickerModal" tabindex="-1" role="dialog" aria-labelledby="emojiPickerModalLabel" aria-hidden="true" data-backdrop="true">
@@ -148,7 +174,7 @@
     
 
         {{#each socketmessages}}
-            <div class="post__body">
+            <div class="post__body mt-5">
             <div class="post__header">
                 <div class="post__headerText AllPost">
                     <div > 
@@ -195,10 +221,39 @@
     <div class="con-like" id="like">
       <input id="likeCheckbox{{ this.idMessage }}" title="like" type="checkbox" class="like" name="like">
     </div>
-  </span>
+  </span> 
+  {{#each ../likes}}
+  {{#ifCond this.PostLike  ../idMessage}}
+    <i class="text-success">{{ this.LikedCount }}</i>
+  {{/ifCond}}
+{{/each}}
   
-  <button type="submit" class="btn btn-success" name="action" value="like">Like</button>
-  <button type="submit" class="btn btn-danger" name="action" value="dislike">Dislike</button>
+  <label class="containerx">
+  <button type="submit" class="btn" name="action" value="like">
+    <svg class="svgx"id="Glyph" version="1.1" viewBox="0 0 32 32" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <path d="M29.845,17.099l-2.489,8.725C26.989,27.105,25.804,28,24.473,28H11c-0.553,0-1-0.448-1-1V13  c0-0.215,0.069-0.425,0.198-0.597l5.392-7.24C16.188,4.414,17.05,4,17.974,4C19.643,4,21,5.357,21,7.026V12h5.002  c1.265,0,2.427,0.579,3.188,1.589C29.954,14.601,30.192,15.88,29.845,17.099z" id="XMLID_254_">
+    </path>
+    <path d="M7,12H3c-0.553,0-1,0.448-1,1v14c0,0.552,0.447,1,1,1h4c0.553,0,1-0.448,1-1V13C8,12.448,7.553,12,7,12z   M5,25.5c-0.828,0-1.5-0.672-1.5-1.5c0-0.828,0.672-1.5,1.5-1.5c0.828,0,1.5,0.672,1.5,1.5C6.5,24.828,5.828,25.5,5,25.5z" id="XMLID_256_">
+    </path>
+    </svg>
+</button>
+</label>  
+  
+  {{#each ../dislikes}}
+  {{#ifCond this.PostDislike  ../idMessage}}
+    <i class="text-danger">{{ this.Disliked }}</i>
+  {{/ifCond}}
+{{/each}}
+
+  <label class="containerxx">
+    <button type="submit" class="btn" name="action" value="dislike">
+    <svg class="svgxx" id="Glyph" version="1.1" viewBox="0 0 32 32" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <path d="M2.156,14.901l2.489-8.725C5.012,4.895,6.197,4,7.528,4h13.473C21.554,4,22,4.448,22,5v14  c0,0.215-0.068,0.425-0.197,0.597l-5.392,7.24C15.813,27.586,14.951,28,14.027,28c-1.669,0-3.026-1.357-3.026-3.026V20H5.999  c-1.265,0-2.427-0.579-3.188-1.589C2.047,17.399,1.809,16.12,2.156,14.901z" id="XMLID_259_">
+    </path><path d="M25.001,20h4C29.554,20,30,19.552,30,19V5c0-0.552-0.446-1-0.999-1h-4c-0.553,0-1,0.448-1,1v14  C24.001,19.552,24.448,20,25.001,20z M27.001,6.5c0.828,0,1.5,0.672,1.5,1.5c0,0.828-0.672,1.5-1.5,1.5c-0.828,0-1.5-0.672-1.5-1.5  C25.501,7.172,26.173,6.5,27.001,6.5z" id="XMLID_260_">
+    </path>
+    </svg>
+    </button>
+  </label>
                 </form>
 
               <script>
@@ -224,9 +279,10 @@
             </div>
 
             <!-- Modal Commentaire -->
-    <form action="/auth/comment" method="post">
+    <form action="/auth/comment" method="post" enctype="multipart/form-data">
     <input type="hidden" name="userId" value="{{ ../user.idUser }}">
     <input type="hidden" name="messageId" value="{{ this.idMessage }}">
+    
     <div class="modal" id="modalComment{{ this.idMessage }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -268,8 +324,8 @@
           <div class="box-container">
             <textarea name="commentText" required placeholder="Reply"></textarea>
             <div>
-              <div class="formatting">
-                
+              <div class="formatting d-flex">
+                <input type="file"  name="image" accept="image/*" class="ElFile" />
                 <button type="submit" class="send" title="Send">
                   <svg fill="none" viewBox="0 0 24 24" height="18" width="18" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#ffffff" d="M12 5L12 20"></path>
@@ -366,9 +422,23 @@
                           <span>{{this.UserName}}</span>
                           <p>{{this.CommentDate}}</p>
                         </div>
+
+                        {{#ifCond this.UserId  ../../user.idUser}}
+                        <form action="/auth/DeleteComment" method="POST">
+                            <input type="hidden" name="userId" value="{{ this.idUser }}">
+                            <input type="hidden" name="commentId" value="{{ this.idComment }}">
+                            <button type="submit" class="button btn-danger" name="action" value="dislike">
+                                Delete
+                             </button>
+                        </form>
+                        {{/ifCond}}
+                        
+                        
               </div>
-                <p>{{ this.SocketComment }}</p></div>
-              
+                <p>{{ this.SocketComment }}</p>
+                <img src="/uploads/{{this.PostImg}}" class="w-75" alt="{{this.PostImg}}">
+              </div>
+
               {{/ifCond}}
           {{/each}}
           </div>
@@ -385,22 +455,23 @@
         
     </div>
     <!-- feed ends -->
-
+  
     <!-- widgets starts -->
     <div class="widgets">
-        <div class="widgets__input">
-            <span class="material-icons widgets__searchIcon"> search </span>
-            <input type="text" placeholder="Search Twitter" />
-        </div>
         <div class="widgets__widgetContainer">
         <div class="text-center">
         {{#if user}} 
-           <button class="BtnLogout" data-toggle="modal" onclick="loadLogout()" data-target="#modalLogoutForm">
-  
-  <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"></path></svg></div>
-  
-  <div class="text">Logout</div>
-</button>
+          <form action="/auth/logout" method="post" >
+            <button type="submit" class="BtnLogout">
+              <div class="sign">
+                <svg viewBox="0 0 512 512">
+                  <path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z">
+                  </path>
+                </svg>
+              </div>
+              <div class="text">Logout</div>
+            </button>
+          </form>
 
 
 
@@ -412,7 +483,7 @@
         </div>
         {{/if}}
     </div>
-     
+
 
     </div>
     
@@ -433,23 +504,32 @@
             <div class="modal-body mx-3">
                 <div class="md-form mb-5">
                     <i class="fas fa-user prefix grey-text"></i>
-                    <input type="text" name="name" required id="orangeForm-name" class="form-control validate">
                     <label id="name" data-error="wrong" data-success="right" for="orangeForm-name">Your name</label>
+                    <input type="text" name="name" required id="orangeForm-name" class="form-control validate">
                 </div>
                 <div class="md-form mb-5">
                     <i class="fas fa-envelope prefix grey-text"></i>
-                    <input type="email" name="email"  required id="orangeForm-email" class="form-control validate">
                     <label data-error="wrong" id="email" data-success="right" for="orangeForm-email">Your email</label>
+                    <input type="email" name="email"  required id="orangeForm-email" class="form-control validate">
                 </div>
                 <div class="md-form mb-4">
                     <i class="fas fa-lock prefix grey-text"></i>
-                    <input type="password" id="orangeForm-pass" name="password" class="form-control validate">
-                    <label data-error="wrong" data-success="right" id="password" required for="orangeForm-pass">Your password</label>
+                    <label data-error="wrong" data-success="right" pattern="/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.*\s).{12,}$/" id="password" required for="password-field">Your password</label>
+                    <input type="password" id="password-field" name="password" class="form-control validate">
+                    <div class="valid-checks hide">
+          <ul class="checklist">
+            <li class="a"><i class='bx bx-check'></i>Lowercase letter</li>
+            <li><i class='bx bx-check'></i>Uppercase letter</li>
+            <li><i class='bx bx-check'></i>Number</li>
+            <li><i class='bx bx-check'></i>At least 12 characters</li>
+            <li><i class='bx bx-check'></i>Special character</li>
+          </ul>
+                    </div>
                 </div>
                 <div class="md-form mb-4">
                     <i class="fas fa-lock prefix grey-text"></i>
-                    <input type="password" id="orangeForm-pass" name="passwordConfirm" class="form-control validate">
-                    <label data-error="wrong" data-success="right" id="passwordConfirm" required for="orangeForm-pass">Confirm Your password</label>
+                    <label data-error="wrong" data-success="right" id="passwordConfirm"  for="orangeForm-pass">Confirm Your password</label>
+                    <input type="password" id="orangeForm-pass"  required name="passwordConfirm" class="form-control validate">
                 </div>
             </div>
             <div class="modal-footer d-flex justify-content-center">
@@ -486,6 +566,7 @@
         </div>
 
         </div>
+        
     <div class="modal-footer d-flex justify-content-center">
         <button type="submit" class="btn btn-indigo">Send <i class="fas fa-paper-plane-o ml-1"></i></button>
     </div>
@@ -495,77 +576,9 @@
     </form>
     <!--Modal Login Ends-->
     
-    <!--Modal Logout-->
-    <form action="/auth/logout" method="post" >
-        <div class="modal" id="modalLogoutForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-        <div class="modal-header text-center">
-            <h4 class="modal-title w-100 font-weight-bold">Logout</h4>
-                <button type="button" class="close" onclick="loadHome()" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="md-form mb-4">
-            <h4>
-                Log out of Groupomania?
-                <br>
-                You can always log back in at any time.
-            </h4>
-        </div>
-        <div class="modal-footer d-flex justify-content-center">
-        <button type="submit" class=" btn-block btn-primary">Logout <i class="fas fa-paper-plane-o ml-1"></i></button>
-        <button  class="close btn-block btn-primary" onclick="loadHome()" data-dismiss="modal" >Close</button>
-        </div>
-        </div>
-    </div>
-        </div>
-        </div>
-    </form>
     <!--Modal Logout Ends-->
 
-    <!--Modal Post -->
-    <div class="modal" id="modalPost" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
-            <div class="modal-dialog" role="document">
-        <div class="modal-content">
-        <div class="modal-header text-center border-white">
-                <button type="button" class="close" onclick="loadHome()" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="md-form mb-4">
-            <form class="com" action="/auth/post?userId={{ user.idUser }}" method="POST" enctype="multipart/form-data">
-            <div class="tweetbox__input">
-                
-                <div class="UserProfile">
-                    <img class="rounded" src="/uploads/{{user.UserProfileImage}}" alt="Profile Image" class="profileImage" />
-                </div>
-                <label for="imageInput">
-                <input type="file" id="imageInput" name="image" accept="image/*" onchange="previewImage(event)" style="display: none" />
-                </label>
-                <textarea class="textcom" id="myTextarea" name="messageText" placeholder="What's happening {{ user.UserName }}?" oninput="updateCharacterCount()" maxlength="280"></textarea>
-            </div>
-            <div class="d-flex under">
-                <div class="imagePreview">
-                <img id="preview" src=""/>
-                </div>
-                <div>
-                <label for="imageInput">
-                    <img class="material-icons addimg" src="/img/addimg.png" alt="">
-                </div>
-                </label>
-
-                <div>
-                <p id="charCount">280 caractères restants</p>
-                </div>
-                <button type="submit" class="tweetBox__tweetButton">Post !</button>
-            </div>
-            </form>
-        </div>
-        </div>
-    </div>
-    </div>
-    <!--Modal Post End -->
+    
     
     {{!-- SnackBar --}}
     {{#if message}}
@@ -606,13 +619,7 @@
         history.pushState({}, "", DOMAIN_NAME + "/login");
     }
 
-    function loadLogout() {
-        history.pushState({}, "", DOMAIN_NAME + "/logout");
-    }
-
-    function loadPushState() {
-        history.pushState({}, "", DOMAIN_NAME + "/PushState");
-    }
+    
 
     function loadComment() {
         history.pushState({}, "", DOMAIN_NAME + "/comment");
@@ -761,15 +768,168 @@ export default {
     });
   });
     </script>
+    {{!-- RegexJs --}}
+    <script>
+      let validationBox = document.querySelector(".valid-checks");
+      let passwordField = document.getElementById("password-field");
+      let checklist = document.querySelector(".checklist").getElementsByTagName("li");
+      let lowerCount = 0,
+        numberCount = 0,
+        upperCount = 0,
+        specialCount = 0;
 
 
+// focus and focusout events
+passwordField.addEventListener("focus", () => {
+  validationBox.classList.remove("hide");
+});
+
+passwordField.addEventListener("focusout", () => {
+  validationBox.classList.add("hide");
+});
+
+// checking conditions
+passwordField.addEventListener("input", () => {
+  let value = passwordField.value.trim();
+  let lastCharacter = value.slice(value.length - 1);
+  let index = checkLastCharacter(lastCharacter);
+
+  if (value.length !== 0) {
+    checklist[index].classList.add("checked");
+    passwordField.addEventListener("keydown", uncheckConditions);
+  } else {
+    passwordField.removeEventListener("keydown", uncheckConditions);
+    resetValues();
+  }
+
+  // checking for minimum 8 letters
+  if (value.length >= 12) {
+    checklist[3].classList.add("checked");
+  } else {
+    checklist[3].classList.remove("checked");
+  }
+
+  // checking for at least one special character
+  if (value.match(/[^a-zA-Z0-9]/)) {
+    checklist[4].classList.add("checked");
+  } else {
+    checklist[4].classList.remove("checked");
+  }
+});
+
+function uncheckConditions(event) {
+  let value = passwordField.value.trim();
+  let index = checkLastCharacter(value.slice(value.length - 1));
+
+  if (event.key === "Backspace") {
+    decrementCount(index);
+    checkCount();
+  } else {
+    incrementCount(index);
+  }
+}
+
+function checkLastCharacter(lastCharacter) {
+  // checking for number
+  if (!Number.isNaN(Number(lastCharacter))) {
+    return 2;
+  }
+  // checking for special character
+  else if (!/[a-zA-Z0-9]/.test(lastCharacter)) {
+    return 3;
+  }
+  // checking for upper case letters
+  else if (lastCharacter === lastCharacter.toUpperCase()) {
+    return 1;
+  }
+  // checking for lower case letter
+  else if (lastCharacter === lastCharacter.toLowerCase()) {
+    return 0;
+  }
+}
+
+function incrementCount(index) {
+  switch (index) {
+    case 0:
+      lowerCount++;
+      console.log("lower Count is ", lowerCount);
+      break;
+    case 1:
+      if (!passwordField.value.trim().match(/[a-zA-Z]/)) {
+        specialCount++;
+        console.log("special Count is ", specialCount);
+      } else {
+        upperCount++;
+        console.log("upper Count is ", upperCount);
+      }
+      break;
+    case 2:
+      numberCount++;
+      console.log("number Count is ", numberCount);
+      break;
+    case 3:
+      specialCount++;
+      console.log("special Count is ", specialCount);
+      break;
+  }
+}
 
 
+function decrementCount(index) {
+  switch (index) {
+    case 0:
+      lowerCount--;
+      console.log("lower Count is ", lowerCount);
+      break;
+    case 1:
+      upperCount--;
+      console.log("upper Count is ", upperCount);
+      break;
+    case 2:
+      numberCount--;
+      console.log("number Count is ", numberCount);
+      break;
+    case 4:
+      specialCount--;
+      console.log("special Count is ", specialCount);
+      break;
+  }
+}
 
+function checkCount() {
+  if (lowerCount <= 1) {
+    checklist[0].classList.remove("checked");
+    lowerCount = 0;
+  }
 
+  if (upperCount <= 1) {
+    checklist[1].classList.remove("checked");
+    upperCount = 0;
+  }
 
+  if (numberCount <= 1) {
+    checklist[2].classList.remove("checked");
+    numberCount = 0;
+  }
 
+  if (specialCount <= 0) {
+    checklist[4].classList.remove("checked");
+    specialCount = 0;
+  }
+}
 
+function resetValues() {
+  lowerCount = 0;
+  upperCount = 0;
+  numberCount = 0;
+  specialCount = 0;
+
+  for (let i = 0; i < checklist.length; i++) {
+    checklist[i].classList.remove("checked");
+  }
+}
+
+    </script>
 
     {{!-- JavaScript END --}}
     {{!-- Bibliothéque --}}

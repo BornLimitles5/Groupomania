@@ -27,6 +27,7 @@ const db = mysql.createConnection({
 //Session
 app.use(
     session({
+        name:'Coucou Je suis la Session',
         secret: 'secret',
         resave: true,
         saveUninitialized: true,
@@ -49,10 +50,13 @@ handlebarsHelpers({ handlebars: hbs.handlebars });
 hbs.registerHelper('ifCond', function(v1, v2, options) {
     if (v1 == v2) {
       return options.fn(this);
-    } else {
+    } else {    
       return options.inverse(this);
     }
 });
+
+
+
 
 const header = fs.readFileSync('./views/header.hbs', 'utf8');
 const footer = fs.readFileSync('./views/footer.hbs', 'utf8');
@@ -79,6 +83,7 @@ io.on('connection', (socket) => {
 });
 
 app.use("/", require('./routes/pages'));
+
 app.use('/auth', require('./routes/auth'));
 
 server.listen(3000, () => {

@@ -9,8 +9,9 @@ body {
     color: rgb(0, 0, 0);
     font-family: 'Roboto', sans-serif;
     scroll-behavior: smooth;
-
+     
 }
+
 
 #fixedarrow {
     position: fixed;
@@ -538,3 +539,330 @@ figure:hover {
     fill: rgb(185, 51, 51);
   }
   
+  .users-fetch {
+    display: flex;
+    
+  }
+
+  /* .button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: rgb(20, 20, 20);
+    border: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.164);
+    cursor: pointer;
+    transition-duration: .3s;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .svgIcon {
+    width: 12px;
+    transition-duration: .3s;
+  }
+  
+  .svgIcon path {
+    fill: white;
+  }
+  
+  .button:hover {
+    width: 140px;
+    border-radius: 50px;
+    transition-duration: .3s;
+    background-color: rgb(255, 69, 69);
+    align-items: center;
+  }
+  
+  .button:hover .svgIcon {
+    width: 50px;
+    transition-duration: .3s;
+    transform: translateY(60%);
+  }
+  
+  .button::before {
+    position: absolute;
+    top: -20px;
+    content: "Delete";
+    color: white;
+    transition-duration: .3s;
+    font-size: 2px;
+  }
+  
+  .button:hover::before {
+    font-size: 13px;
+    opacity: 1;
+    transform: translateY(30px);
+    transition-duration: .3s;
+  }
+
+
+
+
+  .fancy {
+    background-color: transparent;
+    border: 2px solid #000;
+    border-radius: 0;
+    box-sizing: border-box;
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    float: right;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin: 0;
+    outline: none;
+    overflow: visible;
+    padding: 1.25em 2em;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    text-transform: none;
+    transition: all 0.3s ease-in-out;
+    user-select: none;
+    font-size: 13px;
+   }
+   
+   .fancy::before {
+    content: " ";
+    width: 1.5625rem;
+    height: 2px;
+    background: black;
+    top: 50%;
+    left: 1.5em;
+    position: absolute;
+    transform: translateY(-50%);
+    transform-origin: center;
+    transition: background 0.3s linear, width 0.3s linear;
+   }
+   
+   .fancy .text {
+    font-size: 1.125em;
+    line-height: 1.33333em;
+    padding-left: 2em;
+    display: block;
+    text-align: left;
+    transition: all 0.3s ease-in-out;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: black;
+   }
+   
+   .fancy .top-key {
+    height: 2px;
+    width: 1.5625rem;
+    top: -2px;
+    left: 0.625rem;
+    position: absolute;
+    background: #e8e8e8;
+    transition: width 0.5s ease-out, left 0.3s ease-out;
+   }
+   
+   .fancy .bottom-key-1 {
+    height: 2px;
+    width: 1.5625rem;
+    right: 1.875rem;
+    bottom: -2px;
+    position: absolute;
+    background: #e8e8e8;
+    transition: width 0.5s ease-out, right 0.3s ease-out;
+   }
+   
+   .fancy .bottom-key-2 {
+    height: 2px;
+    width: 0.625rem;
+    right: 0.625rem;
+    bottom: -2px;
+    position: absolute;
+    background: #e8e8e8;
+    transition: width 0.5s ease-out, right 0.3s ease-out;
+   }
+   
+   .fancy:hover {
+    color: white;
+    background: black;
+   }
+   
+   .fancy:hover::before {
+    width: 0.9375rem;
+    background: white;
+   }
+   
+   .fancy:hover .text {
+    color: white;
+    padding-left: 1.5em;
+   }
+   
+   .fancy:hover .top-key {
+    left: -2px;
+    width: 0px;
+   }
+   
+   .fancy:hover .bottom-key-1,
+    .fancy:hover .bottom-key-2 {
+    right: 0;
+    width: 0;
+   }
+
+   :root {
+    --white: #f2f6fc;
+    --light-blue:#d3e0f5;
+    --baby-blue :#7aa8ea;
+    --blue: #5188f1;
+    --black: #313640;
+  }
+  
+  *,
+  ::before,
+  ::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+ 
+  
+ 
+  */
+  label {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 15px;
+  }
+  
+  
+  
+  .valid-checks {
+    margin: 20px 0;
+    padding: 20px 25px;
+    background-color: var(--blue);
+    border-radius: 25px;
+    transition: .2s ease;
+    opacity: 1;
+  }
+  
+  .valid-checks ul {
+    list-style-type: none;
+  }
+  
+  .valid-checks li {
+    position: relative;
+    font-size: 15px;
+    font-weight: 300;
+    margin: 8px 0;
+    color: var(--baby-blue);
+    transition: .2s ease;
+  }
+  .valid-checks li i{
+    font-size: 20px;
+    margin-right: 8px;
+  }
+  .valid-checks li.checked {
+    color: var(--white);
+    font-weight: 500;
+  }
+  
+  .hide {
+    opacity: 0;
+    visibility:hidden;
+    position: absolute;
+  }
+
+  /* Input File */
+  /* file upload button */
+.ElFile[type="file"]::file-selector-button {
+  border-radius: 4px;
+  padding: 0 16px;
+  height: 40px;
+  cursor: pointer;
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.05);
+  margin-right: 16px;
+  transition: background-color 200ms;
+}
+
+/* file upload button hover state */
+.ElFile[type="file"]::file-selector-button:hover {
+  background-color: #f3f4f6;
+}
+
+/* file upload button active state */
+.ElFile[type="file"]::file-selector-button:active {
+  background-color: #e5e7eb;
+}
+
+/* ------------------------ */
+.containerx input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.containerx {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.svgx {
+  position: relative;
+  top: 0;
+  left: 0;
+  height: 2rem;
+  width: 2rem;
+  transition: all 0.3s;
+  fill: #666;
+}
+
+.svgx:hover {
+  transform: scale(1.1) rotate(-10deg);
+}
+
+.containerx input:hover ~ svg {
+  fill: #2196F3;
+}
+/************************************************/
+.containerxx input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.containerxx {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.svgxx {
+  position: relative;
+  top: 0;
+  left: 0;
+  height: 2rem;
+  width: 2rem;
+  transition: all 0.3s;
+  fill: #666;
+}
+
+.svgxx:hover {
+  transform: scale(1.1) rotate(-10deg);
+}
+
+.containerxx input:checked ~ svg {
+  fill: rgb(185, 51, 51);
+}
+
+#likeDislikeForm {
+  display: flex;
+  align-items: center;
+}

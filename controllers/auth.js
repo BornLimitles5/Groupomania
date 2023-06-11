@@ -37,6 +37,7 @@ exports.register = (req, res) => {
             message: 'Le mot de passe doit contenir au moins 12 caractères, une lettre majuscule, une lettre minuscule, un caractère spécial et un chiffre',
         });
     }
+    
 
     // Vérification de la correspondance entre le mot de passe et sa confirmation
     if (password !== passwordConfirm) {
@@ -154,6 +155,35 @@ exports.isLoggedIn = async (req, res, next) => {
     }
 };
 
+exports.isLoggedInAsAdmin = async (req, res, next) => {
+  if (req.session.token) {
+    try {
+      // Verify the token
+      const decoded = await promisify(jwt.verify)(req.session.token, process.env.JWT_SECRET);
+
+      // Find the user using your custom MySQL query
+      db.query('SELECT * FROM users WHERE idUser = ?', [decoded.id], (error, result) => {
+        if (!result || result.length === 0) {
+          return next();
+        }
+
+        // Check if the user has the role of "admin"
+        if (result[0].UserRoles === 'admin') {
+          // Set req.user to the user retrieved from the database
+          req.admin = result[0];
+        }
+        return next();
+      });
+    } catch (error) {
+      console.log(error);
+      return next();
+    }
+  } else {
+    next();
+  }
+};
+
+
 // Logout via un Post de User
 exports.logout = (req, res) => {
   // Clear the session token
@@ -181,7 +211,7 @@ exports.postMessage = async (req, res) => {
       if (messageText && imageFile) {
         db.query(
           'INSERT INTO messages (MessageText, MessageDate, idUser, MessageImage) VALUES (?, NOW(), ?, ?)',
-          [messageText, userId, imageFile.filename],
+          [messageText, userId, imageFile.filename],  
           (error) => {
             if (error) {
               console.log(error);
@@ -235,6 +265,7 @@ exports.postMessage = async (req, res) => {
       return res.redirect('/');
     }
 };
+
 
 exports.fetchMessages = async (req, res, next) => {
   try {
@@ -294,10 +325,48 @@ exports.fetchMessages = async (req, res, next) => {
   }
 };
 
+//Sans Image
+// exports.postComment = async (req, res) => {
+//   try {
+//     const { commentText, userId, messageId } = req.body;
+//     if (!userId || !messageId) {
+//       req.session.message = "Veuillez fournir un identifiant d'utilisateur et un identifiant de message";
+//       return res.redirect("/");
+//     }
+
+//     if (!commentText.trim()) {
+//       req.session.message = "Veuillez entrer un commentaire";
+//       return res.redirect("/");
+//     }
+
+//     // Save the comment to the database with the user's ID, message ID, and comment text
+//     db.query(
+//       "INSERT INTO commentaires (PostTexte, PostDate, idUser, idMessage) VALUES (?, NOW(), ?, ?)",
+//       [commentText, userId, messageId],
+//       (error) => {
+//         if (error) {
+//           console.log(error);
+//           req.session.message = "Erreur lors de la sauvegarde du commentaire";
+//           return res.redirect("/");
+//         }
+
+//         req.session.message = "Commentaire ajouté avec succès";
+//         res.redirect("/");
+//       }
+//     );
+//   } catch (error) {
+//     console.log(error);
+//     req.session.message = "Erreur lors de l'ajout du commentaire";
+//     res.redirect("/");
+//   }
+// };
 
 exports.postComment = async (req, res) => {
   try {
     const { commentText, userId, messageId } = req.body;
+    const imageFile = req.file;
+    console.log(req.file);
+
     if (!userId || !messageId) {
       req.session.message = "Veuillez fournir un identifiant d'utilisateur et un identifiant de message";
       return res.redirect("/");
@@ -308,21 +377,43 @@ exports.postComment = async (req, res) => {
       return res.redirect("/");
     }
 
-    // Save the comment to the database with the user's ID, message ID, and comment text
-    db.query(
-      "INSERT INTO commentaires (PostTexte, PostDate, idUser, idMessage) VALUES (?, NOW(), ?, ?)",
-      [commentText, userId, messageId],
-      (error) => {
-        if (error) {
-          console.log(error);
-          req.session.message = "Erreur lors de la sauvegarde du commentaire";
-          return res.redirect("/");
-        }
+    if (commentText && imageFile) {
+      db.query(
+        "INSERT INTO commentaires (PostTexte, PostDate, idUser, idMessage, PostImg) VALUES (?, NOW(), ?, ?, ?)",
+        [commentText, userId, messageId, imageFile.filename],
+        (error) => {
+          if (error) {
+            console.log(error);
+            req.session.message = "Erreur lors de la sauvegarde du commentaire";
+            return res.redirect("/");
+          }
 
-        req.session.message = "Commentaire ajouté avec succès";
-        res.redirect("/");
-      }
-    );
+          req.session.message = "Commentaire ajouté avec succès";
+          res.redirect("/");
+        }
+      );
+    } else if (commentText) {
+      db.query(
+        "INSERT INTO commentaires (PostTexte, PostDate, idUser, idMessage) VALUES (?, NOW(), ?, ?)",
+        [commentText, userId, messageId],
+        (error) => {
+          if (error) {
+            console.log(error);
+            req.session.message = "Erreur lors de la sauvegarde du commentaire";
+            return res.redirect("/");
+          }
+
+          req.session.message = "Commentaire ajouté avec succès";
+          res.redirect("/");
+        }
+      );
+    } else if (imageFile) {
+      req.session.message = "Veuillez entrer un commentaire";
+      return res.redirect("/");
+    } else {
+      req.session.message = "Veuillez entrer un commentaire";
+      return res.redirect("/");
+    }
   } catch (error) {
     console.log(error);
     req.session.message = "Erreur lors de l'ajout du commentaire";
@@ -330,11 +421,11 @@ exports.postComment = async (req, res) => {
   }
 };
 
+
 exports.fetchComments = async (req, res, next) => {
   try {
-    // Fetch comments from the database with user information, including User.Roles and idMessage
     db.query(
-      'SELECT c.idComment, c.PostTexte, c.PostDate, c.idMessage, u.UserName, u.UserProfileImage, u.UserRoles FROM commentaires c JOIN users u ON c.idUser = u.idUser ORDER BY c.idComment DESC',
+      'SELECT c.idComment, c.PostTexte, c.PostDate, c.PostImg, c.idMessage, c.idUser, u.UserName, u.UserProfileImage, u.UserRoles FROM commentaires c JOIN users u ON c.idUser = u.idUser ORDER BY c.idComment DESC',
       (error, results) => {
         if (error) {
           console.log(error);
@@ -369,9 +460,11 @@ exports.fetchComments = async (req, res, next) => {
             idComment: comment.idComment,
             idMessage: comment.idMessage,
             CommentDate: formattedDate,
+            PostImg: comment.PostImg, 
             UserName: comment.UserName,
             UserProfileImage: comment.UserProfileImage,
             UserRoles: comment.UserRoles,
+            UserId: comment.idUser,
           };
         });
 
@@ -387,6 +480,64 @@ exports.fetchComments = async (req, res, next) => {
 };
 
 
+//Sans Image
+// exports.fetchComments = async (req, res, next) => {
+//   try {
+//     // Fetch comments from the database with user information, including User.Roles and idMessage
+//     db.query(
+//       'SELECT c.idComment, c.PostTexte, c.PostDate, c.idMessage, u.UserName, u.UserProfileImage, u.UserRoles FROM commentaires c JOIN users u ON c.idUser = u.idUser ORDER BY c.idComment DESC',
+//       (error, results) => {
+//         if (error) {
+//           console.log(error);
+//           req.session.message = 'Failed to fetch comments';
+//           return res.redirect('/');
+//         }
+
+//         // Store the fetched comments in the session
+//         const socketComments = results.map((comment) => {
+//           const currentDate = new Date();
+//           const commentDate = new Date(comment.PostDate);
+//           const timeDifference = currentDate.getTime() - commentDate.getTime();
+//           const seconds = Math.floor(timeDifference / 1000);
+//           const minutes = Math.floor(seconds / 60);
+//           const hours = Math.floor(minutes / 60);
+//           const days = Math.floor(hours / 24);
+
+//           let formattedDate = '';
+
+//           if (days > 0) {
+//             formattedDate = `Posted on ${commentDate.toLocaleDateString()}`;
+//           } else if (hours > 0) {
+//             formattedDate = `Posted ${hours} hour(s) ago`;
+//           } else if (minutes > 0) {
+//             formattedDate = `Posted ${minutes} minute(s) ago`;
+//           } else {
+//             formattedDate = `Posted ${seconds} second(s) ago`;
+//           }
+
+//           return {
+//             SocketComment: comment.PostTexte,
+//             idComment: comment.idComment,
+//             idMessage: comment.idMessage,
+//             CommentDate: formattedDate,
+//             UserName: comment.UserName,
+//             UserProfileImage: comment.UserProfileImage,
+//             UserRoles: comment.UserRoles,
+//           };
+//         });
+
+//         req.session.socketComments = socketComments;
+//         next();
+//       }
+//     );
+//   } catch (error) {
+//     console.log(error);
+//     req.session.message = 'Failed to fetch comments';
+//     res.redirect('/');
+//   }
+// };
+
+
 exports.likeDislikeMessage = async (req, res) => {
   const { userId, messageId, action } = req.body;
 
@@ -398,6 +549,7 @@ exports.likeDislikeMessage = async (req, res) => {
         if (dislikeCheckError) {
           console.log(dislikeCheckError);
           req.session.message = 'Failed to check dislike status';
+          return res.redirect('/');
         }
 
         if (dislikeCheckResults.length > 0) {
@@ -407,7 +559,7 @@ exports.likeDislikeMessage = async (req, res) => {
             if (removeDislikeError) {
               console.log(removeDislikeError);
               req.session.message = 'Failed to remove dislike';
-              
+              return res.redirect('/');
             }
 
             // User has now removed the dislike and can add the like
@@ -416,11 +568,11 @@ exports.likeDislikeMessage = async (req, res) => {
               if (addLikeError) {
                 console.log(addLikeError);
                 req.session.message = 'Failed to add like';
-                
+                return res.redirect('/');
               }
 
               req.session.message = 'Like added successfully';
-              
+              return res.redirect('/');
             });
           });
         } else {
@@ -430,7 +582,7 @@ exports.likeDislikeMessage = async (req, res) => {
             if (likeCheckError) {
               console.log(likeCheckError);
               req.session.message = 'Failed to check like status';
-             
+              return res.redirect('/');
             }
 
             if (likeCheckResults.length > 0) {
@@ -440,11 +592,11 @@ exports.likeDislikeMessage = async (req, res) => {
                 if (removeLikeError) {
                   console.log(removeLikeError);
                   req.session.message = 'Failed to remove like';
-                  
+                  return res.redirect('/');
                 }
 
                 req.session.message = 'Like removed successfully';
-               
+                return res.redirect('/');
               });
             } else {
               // User has not liked the message, add the like
@@ -453,11 +605,11 @@ exports.likeDislikeMessage = async (req, res) => {
                 if (addLikeError) {
                   console.log(addLikeError);
                   req.session.message = 'Failed to add like';
-                  
+                  return res.redirect('/');
                 }
 
                 req.session.message = 'Like added successfully';
-                
+                return res.redirect('/');
               });
             }
           });
@@ -470,7 +622,7 @@ exports.likeDislikeMessage = async (req, res) => {
         if (likeCheckError) {
           console.log(likeCheckError);
           req.session.message = 'Failed to check like status';
-         
+          return res.redirect('/');
         }
 
         if (likeCheckResults.length > 0) {
@@ -480,7 +632,7 @@ exports.likeDislikeMessage = async (req, res) => {
             if (removeLikeError) {
               console.log(removeLikeError);
               req.session.message = 'Failed to remove like';
-              
+              return res.redirect('/');
             }
 
             // User has now removed the like and can add the dislike
@@ -489,11 +641,11 @@ exports.likeDislikeMessage = async (req, res) => {
               if (addDislikeError) {
                 console.log(addDislikeError);
                 req.session.message = 'Failed to add dislike';
-                
+                return res.redirect('/');
               }
 
               req.session.message = 'Dislike added successfully';
-             
+              return res.redirect('/');
             });
           });
         } else {
@@ -503,7 +655,7 @@ exports.likeDislikeMessage = async (req, res) => {
             if (dislikeCheckError) {
               console.log(dislikeCheckError);
               req.session.message = 'Failed to check dislike status';
-              
+              return res.redirect('/');
             }
 
             if (dislikeCheckResults.length > 0) {
@@ -513,11 +665,11 @@ exports.likeDislikeMessage = async (req, res) => {
                 if (removeDislikeError) {
                   console.log(removeDislikeError);
                   req.session.message = 'Failed to remove dislike';
-                  
+                  return res.redirect('/');
                 }
 
                 req.session.message = 'Dislike removed successfully';
-                
+                return res.redirect('/');
               });
             } else {
               // User has not disliked the message, add the dislike
@@ -526,11 +678,11 @@ exports.likeDislikeMessage = async (req, res) => {
                 if (addDislikeError) {
                   console.log(addDislikeError);
                   req.session.message = 'Failed to add dislike';
-                  
+                  return res.redirect('/');
                 }
 
                 req.session.message = 'Dislike added successfully';
-                
+                return res.redirect('/');
               });
             }
           });
@@ -538,15 +690,176 @@ exports.likeDislikeMessage = async (req, res) => {
       });
     } else {
       req.session.message = 'Invalid action';
-    
+      return res.redirect('/');
     }
   } catch (error) {
     console.log(error);
     req.session.message = 'Failed to like/dislike message';
-    
+    return res.redirect('/');
   }
 };
 
+// Controller function to fetch like and dislike counts
+exports.fetchLikeDislike = async (req, res , next) => {
+  try {
+    const likeQuery = 'SELECT likes.PostLike, COUNT(likes.PostLike) AS LikedCount FROM likes INNER JOIN messages ON likes.PostLike = messages.idMessage GROUP BY likes.PostLike';
+    const dislikeQuery = 'SELECT dislikes.*, COUNT(dislikes.PostDislike) AS Disliked FROM dislikes INNER JOIN messages ON dislikes.PostDislike = messages.idMessage';
+
+    db.query(likeQuery, (likeError, likeResults) => {
+      if (likeError) {
+        console.log(likeError);
+        req.session.message = 'Failed to fetch likes';
+        return res.redirect('/');
+      }
+
+      db.query(dislikeQuery, (dislikeError, dislikeResults) => {
+        if (dislikeError) {
+          console.log(dislikeError);
+          req.session.message = 'Failed to fetch dislikes';
+          return res.redirect('/');
+        }
+
+        req.session.likes = likeResults;
+       
+        req.session.dislikes = dislikeResults;
+       
+        next(); // Call the next middleware
+      });
+    });
+  } catch (error) {
+    console.log(error);
+    req.session.message = 'Failed to fetch like/dislike data';
+    return res.redirect('/');
+  }
+};
+
+exports.AdminDelete = async (req, res) => {
+
+  //Step 1 Get the UserId -_- 🤷 ET ARRETE D'ECRIRE ICI 
+  const  UserId  = req.body.UserId;
+  
+    db.query('DELETE FROM users WHERE idUser = ?', UserId, (err, result) => {
+      if(err){
+      console.log(err)
+      return res.status(500).render('admin', {
+        message: 'Erreur lors du delete',
+    });
+    }
+    else{
+      return res.status(200).render('Succes');
+    }
+    })
+};
+
+exports.AdminEdit = async (req, res) => {
+  try {
+    const { UserId, name, email, password, role } = req.body;
+
+    if (!name && !email && !password && !role) {
+      return res.status(400).render('Succes');
+    }
+
+    try {
+      // Fetch the user to be edited from the database
+      db.query('SELECT * FROM users WHERE idUser = ?', UserId, async (error, result) => {
+        if (error) {
+          return res.status(500).render('Succes');
+        } else {
+          if (!result || result.length === 0) {
+            return res.status(404).render('Succes', {
+              message: 'Utilisateur introuvable',
+            });
+          }
+
+          let updateQuery = '';
+          const updateValues = [];
+
+          if (name) {
+            updateQuery += 'UserName = ?,';
+            updateValues.push(name);
+          }
+
+          if (email) {
+            updateQuery += 'UserEmail = ?,';
+            updateValues.push(email);
+          }
+
+          if (password) {
+            const salt = await bcryptjs.genSalt(8);
+            const hashedPassword = await bcryptjs.hash(password, salt);
+            updateQuery += 'UserPassword = ?,';
+            updateValues.push(hashedPassword);
+          }
+
+          if (role && role === 'admin') {
+            updateQuery += 'UserRoles = ?,';
+            updateValues.push(role);
+          } else {
+            updateQuery += 'UserRoles = NULL,';
+          }
+
+          // Remove the trailing comma from updateQuery
+          updateQuery = updateQuery.slice(0, -1);
+
+          // Add the user ID to updateValues
+          updateValues.push(UserId);
+
+          // Perform the update operation in the database
+          db.query('UPDATE users SET ' + updateQuery + ' WHERE idUser = ?', updateValues, (error, result) => {
+            if (error) {
+              return res.status(500).render('Succes');
+            } else {
+              return res.status(200).render('Succes');
+            }
+          });
+        }
+      });
+    } catch (error) {
+      return res.status(401).render('Succes');
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.CountUser = async (req, res, next) => {
+  try {
+    db.query('SELECT COUNT(*) AS userCount FROM users', (error, results) => {
+      if (error) {
+        console.log(error);
+        return res.status(500).send('Erreur lors du comptage des utilisateurs');
+      } else {
+        const userCount = results[0].userCount;
+        req.userCount = userCount;
+        next()
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send('Erreur lors du comptage des utilisateurs');
+  }
+};
+
+exports.CountMessage = async (req, res, next) => {
+  try {
+    db.query('SELECT COUNT(*) AS CountMessage FROM messages', (error, results) => {
+      if (error) {
+        console.log(error);
+        return res.status(500).send('Erreur lors du comptage des messages');
+      } else {
+        const CountMessage = results[0].CountMessage;
+        req.CountMessage = CountMessage;
+        next()
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send('Erreur lors du comptage des messages');
+  }
+};
+
+
+//Espace Kenzouille
 
 //User Crud (Update Account & Delete Account)
 exports.UpdateEmail = async (req, res) => {
@@ -621,7 +934,6 @@ exports.UpdateEmail = async (req, res) => {
 }
 };
 
-
 exports.ProfilPic = async (req, res) => {
   const { filename } = req.file;
   const { userId, userImg } = req.body;
@@ -663,7 +975,6 @@ exports.ProfilPic = async (req, res) => {
   );
 };
 
-
 exports.Delete = async (req, res) => {
 
   //Step 1 Get the UserId -_- 🤷 ET ARRETE D'ECRIRE ICI 
@@ -673,7 +984,7 @@ exports.Delete = async (req, res) => {
   
   //Step 2 Bye Bye User Je me souviens pas qu'on a un champs id en bdd mais bon on va dire c'est la fatigue
     db.query('DELETE FROM users WHERE idUser = ?', UserId, (err, result) => {
-     if(err){
+      if(err){
       console.log(err)
       return res.status(500).render('edit', {
         message: 'Erreur lors du delete',
@@ -684,8 +995,174 @@ exports.Delete = async (req, res) => {
         message: 'votre compte à été supprimer',
     });
     }
+    })
+};
+
+
+exports.AllUser = async (req, res) => {
+
+  try {
+    // Fetch comments from the database with user information, including User.Roles and idMessage
+    db.query('SELECT * FROM users', (error, results) => {
+        if (error) {
+          console.log(error);
+          req.session.message = 'Failed to fetch comments';
+          return res.redirect('/');
+        }
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    req.session.message = 'Failed to fetch comments';
+    res.redirect('/');
+  }
+
+};
+
+// Verification Du Stockage en Session du tokken
+exports.AllLoggedIn = async (req, res, next) => {
+  if (req.session.token) {
+    try {
+      // Find all users using the MySQL query
+      db.query('SELECT * FROM users', (error, result) => {
+        if (error) {
+          console.log(error);
+          return next();
+        }
+        // Set req.AllUserExports to the users retrieved from the database
+        req.AllUserExports = result;
+        return next();
+      });
+    } catch (error) {
+      console.log(error);
+      return next();
+    }
+  } else {
+    next();
+  }
+};
+
+exports.DeleteMessage = async (req, res) => {
+
+  //Step 1 Get the UserId -_- 🤷 ET ARRETE D'ECRIRE ICI 
+  const  UserId  = req.body.UserId;
+  const messageId = req.body.messageId;
+  console.log('------------------------', messageId)
+  
+  //Step 1 Bonus Verifier que l'user a un tokken
+  
+  //Step 2 Bye Bye User Je me souviens pas qu'on a un champs id en bdd mais bon on va dire c'est la fatigue
+    db.query('DELETE FROM messages WHERE idMessage = ?', messageId, (error, result) => {
+     if(error){ 
+      console.log('----------- ERRRRRRRRRRRROOOOOORRRR-------------',error)
+      req.session.token = null;
+
+      // Store the success message in the session
+      req.session.message = 'Delete Fail';
+
+      // Redirect to the homepage or any desired route
+      res.status(200).redirect('profile');
+    }
+    else{
+      req.session.token = null;
+
+      // Store the success message in the session
+      req.session.message = 'Delete Success';
+
+      // Redirect to the homepage or any desired route
+      res.status(200).redirect('profile');
+    }
    })
-}
+};
+
+exports.EditMessage = async (req, res) => {
+  try {
+    const { userId, messageId, content } = req.body;
+    const imageFile = req.file;
+
+    if (!userId || !messageId) {
+      req.session.message = 'Invalid request';
+      return res.redirect('profile');
+    }
+
+    if (!content && !imageFile) {
+      req.session.message = 'Please enter a message or upload an image';
+      return res.redirect('profile');
+    }
+
+    let updateQuery = '';
+    const updateValues = [];
+
+    if (content) {
+      updateQuery += 'MessageText = ?,';
+      updateValues.push(content);
+    }
+
+    if (imageFile) {
+      updateQuery += 'MessageImage = ?,';
+      updateValues.push(imageFile.filename);
+    }
+
+    // Remove the trailing comma from updateQuery
+    updateQuery = updateQuery.slice(0, -1);
+
+    // Add the message ID and user ID to updateValues
+    updateValues.push(messageId, userId);
+
+    // Update the message in the database
+    db.query(
+      'UPDATE messages SET ' + updateQuery + ' WHERE idMessage = ? AND idUser = ?',
+      updateValues,
+      (error) => {
+        if (error) {
+          console.log(error);
+          req.session.message = 'Error updating the message';
+          return res.redirect('profile');
+        }
+
+        req.session.message = 'Message updated successfully';
+        res.redirect('profile');
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    req.session.message = 'Error updating the message';
+    return res.redirect('profile');
+  }
+};
+
+exports.DeleteComment = async (req, res) => {
+
+  //Step 1 Get the UserId -_- 🤷 ET ARRETE D'ECRIRE ICI 
+  const  UserId  = req.body.UserId;
+  const commentId = req.body.commentId;
+  console.log('------------------------', commentId)
+  
+  //Step 1 Bonus Verifier que l'user a un tokken
+  
+  //Step 2 Bye Bye User Je me souviens pas qu'on a un champs id en bdd mais bon on va dire c'est la fatigue
+    db.query('DELETE FROM commentaires WHERE idComment = ?', commentId, (error, result) => {
+     if(error){ 
+      console.log('----------- ERRRRRRRRRRRROOOOOORRRR-------------',error)
+      req.session.token = null;
+
+      // Store the success message in the session
+      req.session.message = 'Delete Fail';
+
+      // Redirect to the homepage or any desired route
+      res.status(200).redirect('index');
+    }
+    else{
+      req.session.token = null;
+
+      // Store the success message in the session
+      req.session.message = 'Delete Success';
+
+      // Redirect to the homepage or any desired route
+      res.status(200).redirect('index');
+    }
+   })
+};
 
 
 

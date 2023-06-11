@@ -40,9 +40,9 @@ router.post('/login', authController.login);
 // Route handler for logout
 router.post('/logout', authController.logout);
 
-router.post('/post', upload.single('image'), authController.postMessage); // Use the upload middleware
+router.post('/post', upload.single('image'), authController.postMessage); 
 
-router.post('/comment', authController.postComment);
+router.post('/comment', upload.single('image'), authController.postComment);
 
 router.post('/LikeDislike' , authController.likeDislikeMessage)
 
@@ -51,6 +51,20 @@ router.post('/UpdateEmail',  authController.UpdateEmail);
 router.post('/ProfilPic', upload.single('image'), authController.ProfilPic)
 
 router.post('/Delete', authController.Delete)
+
+router.post('/AdminDelete', authController.AdminDelete)
+
+router.post('/AdminEdit' , authController.AdminEdit)
+
+router.post('/admin', authController.AllUser)
+
+router.post('/DeleteMessage', authController.DeleteMessage)
+
+router.post('/DeleteComment', authController.DeleteComment)
+
+router.post('/EditMessage',upload.single('image'), authController.EditMessage)
+
+
 
 
 
